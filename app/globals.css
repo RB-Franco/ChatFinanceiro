@@ -1,0 +1,538 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 142.1 76.2% 36.3%;
+    --radius: 0.5rem;
+
+    /* Sidebar variables - Alterado para um lightgray mais sutil */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 220 13% 91%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-width-icon: 3.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142.4 71.8% 29.2%;
+
+    /* Sidebar variables - Alterado para um escuro mais cinzento */
+    --sidebar-background: 220 10% 12%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 6% 20%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 6% 20%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Garantir que o HTML e o body ocupem toda a altura da tela */
+  html,
+  body {
+    @apply h-full overflow-hidden;
+  }
+}
+
+/* Garantir que o modo escuro seja aplicado corretamente */
+.dark body {
+  @apply bg-background text-foreground;
+}
+
+/* Aplicar diretamente as cores de fundo à sidebar */
+[data-sidebar="sidebar"] {
+  background-color: hsl(var(--sidebar-background));
+  z-index: 50;
+}
+
+/* Estilos personalizados para a barra lateral colapsada */
+[data-collapsible="icon"] [data-sidebar="sidebar"] {
+  @apply border-r shadow-sm;
+}
+
+[data-collapsible="icon"] [data-sidebar="menu-item"] {
+  @apply my-2;
+}
+
+/* Centralizar ícones quando a barra lateral estiver colapsada */
+[data-state="collapsed"] [data-sidebar="menu-button"] > a,
+[data-state="collapsed"] [data-sidebar="menu-button"] > div {
+  display: flex;
+  justify-content: center;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-button"] > a > svg,
+[data-state="collapsed"] [data-sidebar="menu-button"] > div > svg {
+  margin: 0 auto;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-button"] span:not(.sr-only) {
+  display: none;
+}
+
+/* Ajustar espaçamento para o botão de expandir */
+[data-collapsible="icon"] [data-sidebar="footer"] [data-sidebar="menu-item"]:last-child {
+  @apply mt-auto;
+}
+
+/* Centralizar ícones no sidebar colapsado */
+[data-state="collapsed"] [data-sidebar="menu"] {
+  @apply flex flex-col items-center;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-item"] {
+  @apply flex justify-center w-full;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-button"] {
+  @apply flex justify-center items-center;
+}
+
+/* Garantir que o conteúdo principal seja responsivo */
+[data-sidebar="inset"] {
+  @apply flex-1 overflow-hidden;
+  position: relative;
+  z-index: 30;
+  transition: margin-left 0.3s ease;
+}
+
+/* Ajuste para o layout principal quando o sidebar está expandido */
+.sidebar-expanded [data-sidebar="inset"] {
+  margin-left: var(--sidebar-width, 16rem);
+}
+
+/* Ajuste para o layout principal quando o sidebar está colapsado */
+.sidebar-collapsed [data-sidebar="inset"] {
+  margin-left: 0 !important; /* Forçar margem zero quando colapsado */
+}
+
+/* Garantir que o conteúdo principal seja responsivo */
+@media (max-width: 768px) {
+  [data-sidebar="inset"] {
+    margin-left: 0 !important;
+  }
+}
+
+/* Ajustes para tabelas responsivas */
+table {
+  @apply w-full;
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 640px) {
+  .date-filter-container {
+    @apply flex-col items-start;
+  }
+}
+
+/* Gradientes de fundo para as páginas */
+.dashboard-gradient {
+  @apply bg-gradient-to-br from-white via-blue-50/30 to-green-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-gray-900;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+.reports-gradient {
+  @apply bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-indigo-950/30;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+.calendar-gradient {
+  @apply bg-gradient-to-br from-white via-amber-50/30 to-orange-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-amber-950/30;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+.profile-gradient {
+  @apply bg-gradient-to-br from-white via-teal-50/30 to-cyan-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-teal-950/30;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+/* Animação para o loading */
+@keyframes growBar {
+  0% {
+    transform: scaleY(0);
+  }
+  40% {
+    transform: scaleY(1);
+  }
+  60% {
+    transform: scaleY(0.8);
+  }
+  80% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+/* Transições suaves para todo o dashboard */
+.dashboard-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Padronização de cores e efeitos para cards */
+.dashboard-card {
+  @apply bg-card border border-border/40 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out;
+}
+
+/* Melhorias de responsividade para o layout principal */
+.dashboard-container {
+  @apply w-full max-w-full px-2 sm:px-4 md:px-6 mx-auto;
+}
+
+.dashboard-grid {
+  @apply grid gap-4 md:gap-6;
+}
+
+.dashboard-grid-cols-1 {
+  @apply grid-cols-1;
+}
+
+.dashboard-grid-cols-2 {
+  @apply grid-cols-1 md:grid-cols-2;
+}
+
+.dashboard-grid-cols-3 {
+  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+.dashboard-grid-cols-4 {
+  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+}
+
+.dashboard-grid-cols-5 {
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5;
+}
+
+/* Espaçamento responsivo */
+.dashboard-spacing {
+  @apply space-y-4 md:space-y-6;
+}
+
+/* Animações suaves para carregamento de conteúdo */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Melhorias para scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+}
+
+/* Padronização de cores para ícones e elementos de destaque */
+.icon-primary {
+  @apply text-primary;
+}
+
+.icon-success {
+  @apply text-green-500;
+}
+
+.icon-danger {
+  @apply text-red-500;
+}
+
+.icon-warning {
+  @apply text-amber-500;
+}
+
+.icon-info {
+  @apply text-blue-500;
+}
+
+.icon-neutral {
+  @apply text-purple-500;
+}
+
+/* Melhorias para elementos interativos */
+.interactive-element {
+  @apply transition-all duration-200 hover:scale-105 active:scale-95;
+}
+
+/* Ajustes para sidebar em telas pequenas */
+@media (max-width: 768px) {
+  [data-sidebar="sidebar"] {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
+
+/* Estilos para o overlay de loading do conteúdo */
+.content-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  pointer-events: auto;
+}
+
+/* Melhorias visuais para a sidebar */
+[data-sidebar="menu-button"] {
+  @apply transition-all duration-200;
+}
+
+[data-sidebar="menu-button"][data-active="true"] {
+  @apply font-medium;
+}
+
+[data-sidebar="menu-button"]:hover {
+  @apply bg-muted/60;
+}
+
+[data-sidebar="menu-button"] > div {
+  @apply gap-3;
+}
+
+/* Melhorias visuais para o dashboard */
+.dashboard-header-gradient {
+  background: linear-gradient(to right, rgba(var(--primary), 0.05), rgba(var(--primary), 0.02));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(var(--primary), 0.1);
+}
+
+/* Melhorias para os cards do dashboard */
+.dashboard-card {
+  transition: all 0.3s ease;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+/* Melhorias para os controles de filtro */
+.filter-controls {
+  background: rgba(var(--background), 1);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(var(--border), 0.5);
+}
+
+/* Animação suave para os toggles */
+.toggle-transition {
+  transition: all 0.2s ease-in-out;
+}
+
+.toggle-transition:hover {
+  background-color: rgba(var(--primary), 0.05);
+}
+
+/* Melhorias para os gráficos */
+canvas {
+  border-radius: 0.75rem;
+}
+
+/* Melhorias para os cards de resumo */
+.summary-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(var(--border), 0.5);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  border-color: rgba(var(--primary), 0.3);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+/* Estilos para os botões de toggle de recursos */
+.feature-toggle {
+  @apply transition-all duration-200 transform;
+}
+
+.feature-toggle:hover {
+  @apply scale-105;
+}
+
+.feature-toggle:active {
+  @apply scale-95;
+}
+
+/* Melhorias para os cabeçalhos */
+.header-container {
+  @apply relative overflow-hidden;
+}
+
+.header-container::after {
+  content: "";
+  @apply absolute -bottom-6 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent;
+}
+
+/* Melhorias para os ícones de toggle */
+.toggle-icon {
+  @apply transition-transform duration-300;
+}
+
+.toggle-icon-active {
+  @apply text-primary-foreground;
+}
+
+/* Melhorias para os tooltips */
+.tooltip-enhanced {
+  @apply max-w-xs backdrop-blur-sm border-border/50 shadow-lg;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Adicionar estilos específicos para o seletor de datas */
+.date-selector {
+  @apply bg-background border rounded-lg shadow-sm transition-all;
+  position: relative;
+  overflow: hidden;
+}
+
+.date-selector::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, hsl(var(--primary)), transparent);
+  opacity: 0.5;
+}
+
+.date-selector:hover {
+  @apply shadow-md;
+}
+
+.date-selector:hover::before {
+  opacity: 0.8;
+}
+
+/* Melhorias para os botões de navegação do calendário */
+.calendar-nav-button {
+  @apply text-muted-foreground hover:text-foreground transition-colors;
+  position: relative;
+  overflow: hidden;
+}
+
+.calendar-nav-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: hsl(var(--primary));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-radius: inherit;
+}
+
+.calendar-nav-button:hover::after {
+  opacity: 0.1;
+}
+
+/* Melhorias para os selects do filtro de data */
+.date-select-trigger {
+  @apply border-0 bg-transparent focus:ring-0 focus:ring-offset-0 font-medium;
+  transition: all 0.2s ease;
+}
+
+.date-select-trigger:hover {
+  @apply text-primary;
+}
+
+.date-select-content {
+  @apply border border-border/50 shadow-lg rounded-md overflow-hidden;
+  animation: selectDropdown 0.2s ease-out;
+}
+
+@keyframes selectDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

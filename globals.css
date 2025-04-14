@@ -1,0 +1,513 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 142.1 76.2% 36.3%;
+    --radius: 0.5rem;
+
+    /* Sidebar variables - Alterado para um lightgray mais sutil */
+    --sidebar-background: 0 0% 96%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 220 13% 91%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-width-icon: 3.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142.4 71.8% 29.2%;
+
+    /* Sidebar variables - Alterado para um escuro mais cinzento */
+    --sidebar-background: 220 10% 12%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 6% 20%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 6% 20%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Garantir que o HTML e o body ocupem toda a altura da tela */
+  html,
+  body {
+    @apply h-full overflow-hidden;
+  }
+}
+
+/* Garantir que o modo escuro seja aplicado corretamente */
+.dark body {
+  @apply bg-background text-foreground;
+}
+
+/* Aplicar diretamente as cores de fundo à sidebar */
+[data-sidebar="sidebar"] {
+  background-color: hsl(var(--sidebar-background));
+  z-index: 50;
+}
+
+/* Estilos personalizados para a barra lateral colapsada */
+[data-collapsible="icon"] [data-sidebar="sidebar"] {
+  @apply border-r shadow-sm;
+}
+
+[data-collapsible="icon"] [data-sidebar="menu-item"] {
+  @apply my-2;
+}
+
+/* Centralizar ícones quando a barra lateral estiver colapsada */
+[data-state="collapsed"] [data-sidebar="menu-button"] > a,
+[data-state="collapsed"] [data-sidebar="menu-button"] > div {
+  display: flex;
+  justify-content: center;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-button"] > a > svg,
+[data-state="collapsed"] [data-sidebar="menu-button"] > div > svg {
+  margin: 0 auto;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-button"] span:not(.sr-only) {
+  display: none;
+}
+
+/* Ajustar espaçamento para o botão de expandir */
+[data-collapsible="icon"] [data-sidebar="footer"] [data-sidebar="menu-item"]:last-child {
+  @apply mt-auto;
+}
+
+/* Centralizar ícones no sidebar colapsado */
+[data-state="collapsed"] [data-sidebar="menu"] {
+  @apply flex flex-col items-center;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-item"] {
+  @apply flex justify-center w-full;
+}
+
+[data-state="collapsed"] [data-sidebar="menu-button"] {
+  @apply flex justify-center items-center;
+}
+
+/* Garantir que o conteúdo principal seja responsivo */
+[data-sidebar="inset"] {
+  @apply flex-1 overflow-hidden;
+  position: relative;
+  z-index: 30;
+  width: 100%;
+  max-width: 100%;
+  transition: margin-left 0.3s ease;
+}
+
+/* Ajustes para tabelas responsivas */
+table {
+  @apply w-full;
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 640px) {
+  .date-filter-container {
+    @apply flex-col items-start;
+  }
+}
+
+/* Gradientes de fundo para as páginas */
+.dashboard-gradient {
+  @apply bg-gradient-to-br from-white via-blue-50/30 to-green-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-gray-900;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+.reports-gradient {
+  @apply bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-indigo-950/30;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+.calendar-gradient {
+  @apply bg-gradient-to-br from-white via-amber-50/30 to-orange-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-amber-950/30;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+.profile-gradient {
+  @apply bg-gradient-to-br from-white via-teal-50/30 to-cyan-50/30 dark:from-gray-900 dark:via-gray-800/80 dark:to-teal-950/30;
+  @apply transition-colors duration-500 ease-in-out;
+}
+
+/* Animação para o loading */
+@keyframes growBar {
+  0% {
+    transform: scaleY(0);
+  }
+  40% {
+    transform: scaleY(1);
+  }
+  60% {
+    transform: scaleY(0.8);
+  }
+  80% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+/* Transições suaves para todo o dashboard */
+.dashboard-transition {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Padronização de cores e efeitos para cards */
+.dashboard-card {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  @apply bg-card border border-border/40 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out;
+}
+
+/* Melhorias de responsividade para o layout principal */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .dashboard-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+.dashboard-grid {
+  @apply grid gap-4 md:gap-6;
+}
+
+.dashboard-grid-cols-1 {
+  @apply grid-cols-1;
+}
+
+.dashboard-grid-cols-2 {
+  @apply grid-cols-1 md:grid-cols-2;
+}
+
+.dashboard-grid-cols-3 {
+  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+.dashboard-grid-cols-4 {
+  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+}
+
+.dashboard-grid-cols-5 {
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5;
+}
+
+/* Espaçamento responsivo */
+.dashboard-spacing {
+  @apply space-y-4 md:space-y-6;
+}
+
+/* Animações suaves para carregamento de conteúdo */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Adicionar novas animações e melhorar as existentes */
+/* Adicionar após a definição de .fade-in */
+
+/* Animação para elementos que aparecem com um atraso sequencial */
+.stagger-fade-in > * {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.stagger-fade-in > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.stagger-fade-in > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.stagger-fade-in > *:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.stagger-fade-in > *:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.stagger-fade-in > *:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Melhorar a transição do dashboard */
+.dashboard-transition {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Animação para quando os dados são atualizados */
+@keyframes pulse-fade {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.data-updating {
+  animation: pulse-fade 1.5s ease-in-out infinite;
+}
+
+/* Melhorias para scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+}
+
+/* Padronização de cores para ícones e elementos de destaque */
+.icon-primary {
+  @apply text-primary;
+}
+
+.icon-success {
+  @apply text-green-500;
+}
+
+.icon-danger {
+  @apply text-red-500;
+}
+
+.icon-warning {
+  @apply text-amber-500;
+}
+
+.icon-info {
+  @apply text-blue-500;
+}
+
+.icon-neutral {
+  @apply text-purple-500;
+}
+
+/* Melhorias para elementos interativos */
+.interactive-element {
+  @apply transition-all duration-200 hover:scale-105 active:scale-95;
+}
+
+/* Ajustes para sidebar em telas pequenas */
+@media (max-width: 768px) {
+  [data-sidebar="sidebar"] {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
+
+/* Estilos para o overlay de loading do conteúdo */
+.content-loading-overlay {
+  backdrop-filter: blur(4px);
+  transition: opacity 0.3s ease-in-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  pointer-events: auto;
+}
+
+/* Animações para transições de página */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Overlay de transição de página */
+.page-transition-overlay {
+  animation: fadeIn 0.2s ease-in-out, fadeOut 0.3s ease-in-out 0.3s forwards;
+  pointer-events: none;
+}
+
+/* Container de transição de página */
+.page-transition-container {
+  will-change: opacity, transform;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animação para saída de página */
+.page-transitioning-out {
+  animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+/* Melhorar a transição entre temas */
+.dark body,
+body {
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Melhorar a transição do sidebar */
+[data-sidebar="sidebar"] {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Adicione estas regras no final do arquivo para garantir que os tooltips sempre fiquem na frente */
+
+/* Garantir que tooltips sempre fiquem na frente de tudo */
+.tooltip-overlay {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Ajuste para o chat sidebar */
+.sidebar-container {
+  z-index: 100;
+}
+
+/* Garantir que os tooltips não sejam cortados */
+[data-sidebar="inset"] {
+  overflow: visible !important;
+}
+
+/* Quando o tooltip estiver visível, garantir que ele não seja cortado */
+.group-hover\:visible {
+  z-index: 9999;
+  position: relative;
+}
+
+/* Vamos adicionar estilos globais para garantir que todas as tooltips tenham fundo sólido */
+
+/* Adicione estas regras no final do arquivo para garantir que elas tenham prioridade */
+
+/* Garantir que tooltips tenham fundo sólido */
+[data-radix-tooltip-content-wrapper] {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-radix-tooltip-content] {
+  background-color: white !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+  z-index: 9999 !important;
+}
+
+.dark [data-radix-tooltip-content] {
+  background-color: hsl(220, 10%, 12%) !important;
+  color: white !important;
+  border-color: hsl(240, 6%, 20%) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Corrigir tooltips específicas */
+.tooltip-enhanced,
+.tooltip-overlay,
+[role="tooltip"] {
+  background-color: white !important;
+  color: hsl(var(--foreground)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 9999 !important;
+}
+
+.dark .tooltip-enhanced,
+.dark .tooltip-overlay,
+.dark [role="tooltip"] {
+  background-color: hsl(220, 10%, 12%) !important;
+  color: white !important;
+}
+
+/* Garantir que tooltips dos relatórios sejam visíveis */
+.reports-gradient [role="tooltip"],
+.dashboard-gradient [role="tooltip"],
+.calendar-gradient [role="tooltip"],
+.profile-gradient [role="tooltip"] {
+  z-index: 9999 !important;
+  position: relative !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+}
