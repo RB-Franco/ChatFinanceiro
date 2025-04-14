@@ -6,7 +6,7 @@ import { useFinance } from "../finance-provider"
 import { Chart, registerables } from "chart.js"
 import { useTheme } from "next-themes"
 import { formatCurrency } from "@/utils/format-currency"
-import { ArrowDownRight, ArrowUpRight, BarChart4, TrendingUp, TrendingDown } from "lucide-react"
+import { ArrowDownRight, ArrowUpRight, BarChart4, TrendingUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 // Registrar os componentes necessários do Chart.js
@@ -222,6 +222,7 @@ export function YearlyChart({ includeFuture = true }: YearlyChartProps) {
               },
               y: {
                 grid: {
+                  display: false,
                   color: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
                   drawBorder: false,
                 },
@@ -304,6 +305,10 @@ export function YearlyChart({ includeFuture = true }: YearlyChartProps) {
       }
     }
   }, [mounted, theme, transactions, includeFuture, formatCurrencyWithUserSettings])
+
+  const formatValue = (value: number) => {
+    return value > 0 ? formatCurrencyWithUserSettings(value) : "-"
+  }
 
   // Renderizar um placeholder ou o gráfico
   return (
@@ -518,129 +523,6 @@ export function YearlyChart({ includeFuture = true }: YearlyChartProps) {
                   </div>
                   <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-500">
                     <TrendingUp className="h-6 w-6" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Card de Tendência */}
-              <div
-                className="relative group cursor-help h-full"
-                onMouseEnter={(e) => {
-                  const tooltip = document.createElement("div")
-                  tooltip.className =
-                    "absolute z-[9999] p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-72 transform -translate-y-full"
-                  tooltip.innerHTML = `
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-2">
-            <div class="p-1.5 rounded-full ${
-              tendencia === "up"
-                ? "bg-green-100 dark:bg-green-900/30"
-                : tendencia === "down"
-                  ? "bg-red-100 dark:bg-red-900/30"
-                  : "bg-blue-100 dark:bg-blue-900/30"
-            }">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="${
-                tendencia === "up"
-                  ? "text-green-600 dark:text-green-400"
-                  : tendencia === "down"
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-blue-600 dark:text-blue-400"
-              }">
-                ${
-                  tendencia === "up"
-                    ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>'
-                    : tendencia === "down"
-                      ? '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline>'
-                      : '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>'
-                }
-              </svg>
-            </div>
-            <p class="font-semibold ${
-              tendencia === "up"
-                ? "text-green-600 dark:text-green-400"
-                : tendencia === "down"
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-blue-600 dark:text-blue-400"
-            }">Tendência Financeira</p>
-          </div>
-          <div class="flex justify-between items-center mt-1">
-            <p class="text-sm font-medium">Status:</p>
-            <p class="font-bold ${
-              tendencia === "up"
-                ? "text-green-600 dark:text-green-400"
-                : tendencia === "down"
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-blue-600 dark:text-blue-400"
-            }">${tendencia === "up" ? "Positiva" : tendencia === "down" ? "Negativa" : "Estável"}</p>
-          </div>
-          <p class="text-xs text-gray-600 dark:text-gray-300">
-            Comparação do saldo do último ano com o ano anterior.
-          </p>
-          <div class="mt-1 p-2 ${
-            tendencia === "up"
-              ? "bg-green-100/50 dark:bg-green-900/20"
-              : tendencia === "down"
-                ? "bg-red-100/50 dark:bg-red-900/20"
-                : "bg-blue-100/50 dark:bg-blue-900/20"
-          } rounded-md">
-            <p class="text-xs ${
-              tendencia === "up"
-                ? "text-green-700 dark:text-green-300"
-                : tendencia === "down"
-                  ? "text-red-700 dark:text-red-300"
-                  : "text-blue-700 dark:text-blue-300"
-            }">
-              ${
-                tendencia === "up"
-                  ? "Seus resultados financeiros estão melhorando em comparação ao ano anterior."
-                  : tendencia === "down"
-                    ? "Seus resultados financeiros pioraram em comparação ao ano anterior."
-                    : "Seus resultados financeiros se mantiveram estáveis em comparação ao ano anterior."
-              }
-            </p>
-          </div>
-        </div>
-      `
-                  tooltip.id = "tooltip-tendencia"
-                  document.body.appendChild(tooltip)
-
-                  const rect = e.currentTarget.getBoundingClientRect()
-                  tooltip.style.left = `${rect.left + rect.width / 2 - 144}px` // Centralizar tooltip (largura 288px/2)
-                  tooltip.style.top = `${rect.top - 10}px`
-                }}
-                onMouseLeave={() => {
-                  const tooltip = document.getElementById("tooltip-tendencia")
-                  if (tooltip) tooltip.remove()
-                }}
-              >
-                <div className="bg-muted/30 rounded-lg p-4 flex justify-between items-center h-full hover:bg-muted/50 transition-colors">
-                  <div className="flex flex-col justify-between h-full">
-                    <p className="text-sm font-medium text-muted-foreground">Tendência</p>
-                    <p
-                      className={`text-xl font-bold min-h-[28px] ${
-                        tendencia === "up" ? "text-green-500" : tendencia === "down" ? "text-red-500" : "text-blue-500"
-                      }`}
-                    >
-                      {tendencia === "up" ? "Positiva" : tendencia === "down" ? "Negativa" : "Estável"}
-                    </p>
-                    <p className="text-xs text-muted-foreground min-h-[16px]">Comparado ao ano anterior</p>
-                  </div>
-                  <div
-                    className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                      tendencia === "up"
-                        ? "bg-green-100 dark:bg-green-900/30 text-green-500"
-                        : tendencia === "down"
-                          ? "bg-red-100 dark:bg-red-900/30 text-red-500"
-                          : "bg-blue-100 dark:bg-blue-900/30 text-blue-500"
-                    }`}
-                  >
-                    {tendencia === "up" ? (
-                      <TrendingUp className="h-6 w-6" />
-                    ) : tendencia === "down" ? (
-                      <TrendingDown className="h-6 w-6" />
-                    ) : (
-                      <BarChart4 className="h-6 w-6" />
-                    )}
                   </div>
                 </div>
               </div>
