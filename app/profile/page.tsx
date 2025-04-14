@@ -14,7 +14,6 @@ import { useFinance } from "@/components/finance-provider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { User, Home, DollarSign } from "lucide-react"
 import { RouteTransition } from "@/components/route-transition"
-// Adicionar o import do PageTransition
 import { PageTransition } from "@/components/page-transition"
 
 export default function ProfilePage() {
@@ -43,8 +42,6 @@ export default function ProfilePage() {
       <SidebarProvider>
         <MainSidebar />
         <SidebarInset className="flex-1 overflow-hidden">
-          {/* Modificar o conteúdo principal para usar PageTransition */}
-          {/* Substituir: */}
           <div className="h-full w-full overflow-auto profile-gradient relative">
             <RouteTransition />
             {showLoading && (
@@ -57,9 +54,6 @@ export default function ProfilePage() {
             )}
             <PageTransition className="h-full w-full flex flex-col">
               <div className="dashboard-container dashboard-spacing py-4 md:py-6 max-w-6xl mx-auto">
-
-                {/* Removi o HeaderContainer aqui */}
-
                 <div className="dashboard-transition fade-in mb-6">
                   <ProfileHeader />
                 </div>
@@ -98,9 +92,8 @@ export default function ProfilePage() {
               </div>
             </PageTransition>
           </div>
-          </SidebarInset>
-        </div>
+        </SidebarInset>
       </SidebarProvider>
-  </div>
+    </div>
   )
 }

@@ -6,6 +6,7 @@ import { useFinance } from "../finance-provider"
 import { Chart, registerables } from "chart.js"
 import { useTheme } from "next-themes"
 import { formatCurrency } from "@/utils/format-currency"
+// Import the missing TrendingDown component
 import { ArrowDownRight, ArrowUpRight, BarChart4, TrendingUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
