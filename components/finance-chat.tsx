@@ -97,7 +97,7 @@ export function FinanceChat() {
           console.error("Erro ao carregar mensagens do localStorage:", e)
 
           // Adicionar mensagem de boas-vindas local em caso de erro
-          const welcomeMsg = {
+          const welcomeMsg: message = {
             id: "welcome",
             text: "Olá! Envie suas transações financeiras no formato: [tipo: receita/despesa] [valor] [categoria] [subcategoria] [descrição] [data opcional: DD/MM/AAAA]. Exemplo: receita 100 salário mensal Pagamento de janeiro",
             sender: "system",
@@ -110,7 +110,7 @@ export function FinanceChat() {
         }
       } else {
         // Adicionar mensagem de boas-vindas local se não houver mensagens salvas
-        const welcomeMsg = {
+        const welcomeMsg: message = {
           id: "welcome",
           text: "Olá! Envie suas transações financeiras no formato: [tipo: receita/despesa] [valor] [categoria] [subcategoria] [descrição] [data opcional: DD/MM/AAAA]. Exemplo: receita 100 salário mensal Pagamento de janeiro",
           sender: "system",
