@@ -245,6 +245,7 @@ export function FinanceChat() {
       const isFuture = date > new Date()
 
       const transactionData: Transaction = {
+        id,
         amount: type === "despesa" ? -Math.abs(amount) : Math.abs(amount),
         type,
         category,
