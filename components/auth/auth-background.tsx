@@ -12,8 +12,14 @@ export function AuthBackground() {
     if (!canvasRef.current) return
 
     const canvas = canvasRef.current
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return // Add this null check to fix the TypeScript error
+    // Usar uma verificação de tipo mais explícita para o contexto
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D | null
+
+    // Verificação explícita para garantir que ctx não é nulo
+    if (ctx === null) {
+      console.warn("Não foi possível obter o contexto 2D do canvas")
+      return
+    }
 
     // Variáveis para controlar a animação
     let animationPhase = 0 // 0: crescendo, 1: estável, 2: desvanecendo, 3: pausa
@@ -22,6 +28,8 @@ export function AuthBackground() {
 
     // Função para redimensionar o canvas
     const resizeCanvas = () => {
+      if (!canvasRef.current || !ctx) return // Verificação adicional de segurança
+
       const dpr = window.devicePixelRatio || 1
 
       // Definir o tamanho real do canvas (para resolução nítida)
@@ -48,6 +56,8 @@ export function AuthBackground() {
 
     // Função para desenhar o gráfico
     function drawGraph(progress = 1, opacity = 1) {
+      if (!ctx) return // Verificação adicional de segurança
+
       // Limpar o canvas
       ctx.clearRect(0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1))
 
@@ -126,10 +136,10 @@ export function AuthBackground() {
       ctx.fillStyle = barColor
 
       // Pontos para a curva - vamos ajustar para que a linha não toque nenhuma das barras
-      const curvePoints = []
+      const curvePoints: Array<{ x: number; y: number }> = []
 
       // Primeiro, vamos criar os pontos das barras para referência
-      const barTops = []
+      const barTops: Array<{ x: number; y: number }> = []
 
       for (let i = 0; i < numBars; i++) {
         const currentHeight = barHeights[i] * progress
@@ -281,14 +291,16 @@ export function AuthBackground() {
 
     // Função para animar as barras com transição suave
     function animateGraph() {
-      let startTime = null
+      let startTime: number | null = null
       // Aumentar a duração para tornar a animação mais lenta e suave
       const growDuration = 4000 // Aumentado de 2500 para 4000 ms
       const stableDuration = 7000 // Aumentado de 5000 para 6000 ms
       const fadeDuration = 2000 // Aumentado de 1500 para 2000 ms
       const pauseDuration = 4500 // Aumentado de 2000 para 2500 ms
 
-      function animate(timestamp) {
+      function animate(timestamp: number) {
+        if (!ctx) return // Verificação adicional de segurança
+
         if (!startTime) startTime = timestamp
         const elapsed = timestamp - startTime
 
