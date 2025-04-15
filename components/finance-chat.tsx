@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/components/ui/use-toast"
-import { useFinance, type TransactionType } from "./finance-provider"
+import { useFinance, Transaction, type TransactionType } from "./finance-provider"
 import { formatCurrency } from "@/utils/format-currency"
 import { LoadingOverlay } from "./loading-overlay"
 
