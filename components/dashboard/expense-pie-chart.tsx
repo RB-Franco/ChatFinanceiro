@@ -188,8 +188,11 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
                   return data.labels.map((label, i) => {
                     const meta = chart.getDatasetMeta(0)
                     const style = meta.controller.getStyle(i, false) // false for inactive state
-                    const value = chart.data.datasets[0].data[i] as number
-                    const total = chart.data.datasets[0].data.reduce((sum: number, val: number) => sum + val, 0)
+                    const dataValue = chart.data.datasets[0].data[i]
+                    const value = typeof dataValue === "number" ? dataValue : 0
+                    const total = chart.data.datasets[0].data.reduce((sum: number, val: any) => {
+                      return sum + (typeof val === "number" ? val : 0)
+                    }, 0)
                     const percentage = total > 0 ? Math.round((value / total) * 100) : 0
 
                     return {
@@ -221,12 +224,12 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
             usePointStyle: true,
             callbacks: {
               label: (context) => {
-                const value = context.raw as number
+                const value = typeof context.raw === "number" ? context.raw : 0
                 const total = data.reduce((a, b) => a + b, 0)
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0"
                 return `${context.label}: ${formatCurrency(value)} (${percentage}%)`
               },
-              labelTextColor: (context) => {
+              labelTextColor: () => {
                 return theme === "dark" ? "#e5e7eb" : "#374151"
               },
             },
