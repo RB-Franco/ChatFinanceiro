@@ -226,7 +226,7 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0"
                 return `${context.label}: ${formatCurrency(value)} (${percentage}%)`
               },
-              labelTextColor: () => {
+              labelTextColor: (context) => {
                 return theme === "dark" ? "#e5e7eb" : "#374151"
               },
             },
