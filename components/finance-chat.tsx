@@ -145,10 +145,13 @@ export function FinanceChat() {
   }
 
   const saveMessage = (message: Omit<Message, "id">): Message => {
+    // Garantir que o tipo de sender seja preservado como "user" | "system"
+    const sender: "user" | "system" = message.sender
+
     return {
       id: Date.now().toString(),
       text: message.text,
-      sender: message.sender,
+      sender: sender,
       timestamp: message.timestamp,
     }
   }
@@ -173,13 +176,12 @@ export function FinanceChat() {
 
     // Adicionar mensagem temporária de "digitando..."
     const typingMessageId = Date.now().toString() + "-typing"
-    const typingMessage: Message = {
-      id: typingMessageId,
+    const typingMessage: Omit<Message, "id"> = {
       text: "Processando transação...",
       sender: "system",
       timestamp: new Date(),
     }
-    setMessages((prev) => [...prev, typingMessage])
+    setMessages((prev) => [...prev, saveMessage(typingMessage)])
 
     // Processar a mensagem
     try {
