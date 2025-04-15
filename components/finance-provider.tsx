@@ -10,7 +10,7 @@ export type TransactionType = "receita" | "despesa"
 export type TransactionStatus = "realizada" | "futura"
 
 export interface Transaction {
-  id: string
+  id?: string
   description: string
   amount: number
   date: Date
