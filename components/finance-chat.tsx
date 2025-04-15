@@ -244,7 +244,7 @@ export function FinanceChat() {
       // Determinar se é uma transação futura
       const isFuture = date > new Date()
 
-      const transactionData = {
+      const transactionData: Transaction = {
         amount: type === "despesa" ? -Math.abs(amount) : Math.abs(amount),
         type,
         category,
