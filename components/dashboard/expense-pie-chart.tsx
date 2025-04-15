@@ -12,6 +12,7 @@ import type { Chart as ChartType, ChartOptions } from "chart.js"
 
 // No início do componente, após as outras importações
 import { useFinance } from "../finance-provider"
+import type { Transaction } from "@/types"
 
 interface ExpensePieChartProps {
   month: number
@@ -36,7 +37,7 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
 
   // Agora que estamos no cliente, podemos usar o hook useFinance com segurança
   const { getTransactionsByMonth, showFamilyTransactions } = useFinance()
-  const [transactions, setTransactions] = useState([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
 
   // Função para gerar cores dinâmicas para categorias
   const generateColor = (index: number, total: number, alpha = 1) => {
