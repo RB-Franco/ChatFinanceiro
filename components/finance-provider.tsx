@@ -459,10 +459,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     (value: number) => {
       if (!profile) return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 
-      const { currency, locale } = profile
+      const { currency } = profile
 
       try {
-        return value.toLocaleString(locale || "pt-BR", {
+        // Usar "pt-BR" como locale padrão em vez de tentar acessar profile.locale
+        return value.toLocaleString("pt-BR", {
           style: "currency",
           currency: currency || "BRL",
         })
