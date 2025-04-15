@@ -90,9 +90,12 @@ export function FinancialSettings() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!profile) return
+
     // Atualizar informações financeiras
     updateProfile({
       ...profile,
+      name: profile.name || "Usuário", // Garantir que name seja sempre uma string
       currency: formData.currency,
       showCents: formData.showCents,
       budgetAlerts: formData.budgetAlerts,
