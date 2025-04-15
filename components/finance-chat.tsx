@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/components/ui/use-toast"
-import { useFinance, Transaction, type TransactionType } from "./finance-provider"
+import { useFinance, type Transaction, type TransactionType, type TransactionStatus } from "./finance-provider"
 import { formatCurrency } from "@/utils/format-currency"
 import { LoadingOverlay } from "./loading-overlay"
 
@@ -176,12 +176,13 @@ export function FinanceChat() {
 
     // Adicionar mensagem temporária de "digitando..."
     const typingMessageId = Date.now().toString() + "-typing"
-    const typingMessage: Omit<Message, "id"> = {
+    const typingMessage: Message = {
+      id: typingMessageId,
       text: "Processando transação...",
       sender: "system",
       timestamp: new Date(),
     }
-    setMessages((prev) => [...prev, saveMessage(typingMessage)])
+    setMessages((prev) => [...prev, typingMessage])
 
     // Processar a mensagem
     try {
@@ -243,16 +244,17 @@ export function FinanceChat() {
 
       // Determinar se é uma transação futura
       const isFuture = date > new Date()
+      const status: TransactionStatus = isFuture ? "futura" : "realizada"
 
-      const transactionData: Transaction = {
-        id,
+      // Adicionar tipagem explícita para transactionData
+      const transactionData: Omit<Transaction, "id"> = {
         amount: type === "despesa" ? -Math.abs(amount) : Math.abs(amount),
         type,
         category,
         subcategory,
         description,
         date,
-        status: isFuture ? "futura" : "realizada",
+        status,
       }
 
       // Adicionar transação - aguardar a conclusão completa
