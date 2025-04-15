@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react"
 import { getSupabase } from "@/lib/supabase"
 import { useRouter, usePathname } from "next/navigation"
 import { LoadingOverlay } from "@/components/loading-overlay"
-import type { AuthChangeEvent } from "@supabase/supabase-js"
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
 
 interface AuthCheckProps {
   children: React.ReactNode
@@ -104,19 +104,21 @@ export function AuthCheck({ children, redirectTo = "/login" }: AuthCheckProps) {
     checkAuth()
 
     // Configurar listener para mudanças de autenticação
-    const { data: authListener } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
-      if (event === "SIGNED_IN" && session) {
-        setAuthenticated(true)
-        // Não chamar checkAuth() novamente aqui
-      } else if (event === "SIGNED_OUT") {
-        setAuthenticated(false)
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event: AuthChangeEvent, session: Session | null) => {
+        if (event === "SIGNED_IN" && session) {
+          setAuthenticated(true)
+          // Não chamar checkAuth() novamente aqui
+        } else if (event === "SIGNED_OUT") {
+          setAuthenticated(false)
 
-        // Se não estamos em uma rota de autenticação, redirecionar para o login
-        if (!isAuthRoute && redirectTo) {
-          router.push(redirectTo)
+          // Se não estamos em uma rota de autenticação, redirecionar para o login
+          if (!isAuthRoute && redirectTo) {
+            router.push(redirectTo)
+          }
         }
-      }
-    })
+      },
+    )
 
     return () => {
       authListener.subscription.unsubscribe()
