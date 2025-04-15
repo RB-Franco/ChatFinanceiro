@@ -201,7 +201,6 @@ export function DailyChart({ month, year, includeFuture = true }: DailyChartProp
                 grid: {
                   display: false,
                   color: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
-                  drawBorder: false,
                 },
                 ticks: {
                   color: theme === "dark" ? "#e5e7eb" : "#374151",
