@@ -11,8 +11,7 @@ import { ArrowDownRight, ArrowUpRight, PieChart } from "lucide-react"
 import type { Chart as ChartType, ChartOptions } from "chart.js"
 
 // No início do componente, após as outras importações
-import { useFinance } from "../finance-provider"
-import type { Transaction } from "@/types"
+import { useFinance, type Transaction } from "../finance-provider"
 
 interface ExpensePieChartProps {
   month: number
@@ -151,9 +150,9 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
       const data = Object.values(totals.categorias)
 
       // Gerar cores dinâmicas para cada categoria
-      const backgroundColor = []
-      const hoverBackgroundColor = []
-      const borderColor = []
+      const backgroundColor: string[] = []
+      const hoverBackgroundColor: string[] = []
+      const borderColor: string[] = []
 
       // Adicionar cores dinâmicas para cada categoria de despesa
       const categorias = Object.keys(totals.categorias)
