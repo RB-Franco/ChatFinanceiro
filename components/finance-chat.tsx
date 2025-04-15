@@ -145,9 +145,13 @@ export function FinanceChat() {
   }
 
   const saveMessage = (message: Omit<Message, "id">): Message => {
-    // Salvar apenas no localStorage
+    // Ensure sender is explicitly typed as "user" | "system"
+    const typedSender: "user" | "system" = message.sender as "user" | "system"
+
+    // Return the message with the properly typed sender
     return {
       ...message,
+      sender: typedSender,
       id: Date.now().toString(),
     }
   }
@@ -177,7 +181,7 @@ export function FinanceChat() {
       {
         id: typingMessageId,
         text: "Processando transação...",
-        sender: "system",
+        sender: "system" as "user" | "system",
         timestamp: new Date(),
       },
     ])
