@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTheme } from "next-themes"
-import { formatCurrency, formatCurrencyWithUserSettings } from "@/utils/format-currency"
+import { formatCurrency } from "@/utils/format-currency"
 import { Badge } from "@/components/ui/badge"
 import { ArrowDownRight, ArrowUpRight, PieChart } from "lucide-react"
 
@@ -224,7 +224,7 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
                 const value = context.raw as number
                 const total = data.reduce((a, b) => a + b, 0)
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0"
-                return `${context.label}: ${formatCurrencyWithUserSettings(value)} (${percentage}%)`
+                return `${context.label}: ${formatCurrency(value)} (${percentage}%)`
               },
               labelTextColor: (context) => {
                 return theme === "dark" ? "#e5e7eb" : "#374151"
