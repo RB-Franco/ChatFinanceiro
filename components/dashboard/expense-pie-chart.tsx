@@ -187,7 +187,7 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
                 if (data.labels && data.datasets.length) {
                   return data.labels.map((label, i) => {
                     const meta = chart.getDatasetMeta(0)
-                    const style = meta.controller.getStyle(i)
+                    const style = meta.controller.getStyle(i, false) // false for inactive state
                     const value = chart.data.datasets[0].data[i] as number
                     const total = chart.data.datasets[0].data.reduce((sum: number, val: number) => sum + val, 0)
                     const percentage = total > 0 ? Math.round((value / total) * 100) : 0
