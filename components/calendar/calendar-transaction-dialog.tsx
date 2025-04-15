@@ -213,7 +213,7 @@ export function CalendarTransactionDialog({ date, open, onOpenChange }: Calendar
                       </div>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction?.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TooltipTrigger>
