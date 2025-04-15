@@ -13,7 +13,7 @@ export function AuthBackground() {
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext("2d")
-    if (!ctx) return
+    if (!ctx) return // Add this null check to fix the TypeScript error
 
     // Variáveis para controlar a animação
     let animationPhase = 0 // 0: crescendo, 1: estável, 2: desvanecendo, 3: pausa
