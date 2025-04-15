@@ -145,10 +145,11 @@ export function FinanceChat() {
   }
 
   const saveMessage = (message: Omit<Message, "id">): Message => {
-    // Salvar apenas no localStorage
     return {
-      ...message,
       id: Date.now().toString(),
+      text: message.text,
+      sender: message.sender,
+      timestamp: message.timestamp,
     }
   }
 
@@ -172,15 +173,13 @@ export function FinanceChat() {
 
     // Adicionar mensagem temporária de "digitando..."
     const typingMessageId = Date.now().toString() + "-typing"
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: typingMessageId,
-        text: "Processando transação...",
-        sender: "system" as const,
-        timestamp: new Date(),
-      },
-    ])
+    const typingMessage: Message = {
+      id: typingMessageId,
+      text: "Processando transação...",
+      sender: "system",
+      timestamp: new Date(),
+    }
+    setMessages((prev) => [...prev, typingMessage])
 
     // Processar a mensagem
     try {
