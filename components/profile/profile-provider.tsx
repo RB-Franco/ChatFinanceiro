@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { getSupabase, isRLSError, isSessionMissingError } from "@/lib/supabase"
 import { useToast } from "@/components/ui/use-toast"
-import type { AuthChangeEvent } from "@supabase/supabase-js"
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
 
 // Tipo para o perfil do usuário
 export interface UserProfile {
@@ -305,7 +305,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   // Função para remover o sufixo "(Atualizado)" do nome
   const cleanName = (name: string): string => {
-    return name.replace(/\s*$$Atualizado$$\s*$/, "")
+    return name.replace(/\s*$Atualizado$\s*$/, "")
   }
 
   // Função para mapear os dados do Supabase para o formato do perfil
@@ -451,7 +451,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     // Configurar listener para mudanças de autenticação
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (event === "SIGNED_IN") {
         setIsAuthenticated(true)
         // Recarregar perfil apenas se o evento for SIGNED_IN
