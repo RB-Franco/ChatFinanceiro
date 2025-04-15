@@ -230,7 +230,7 @@ export function MonthlyChart({ year, includeFuture = true }: MonthlyChartProps) 
                   padding: 20,
                   font: {
                     size: 12,
-                    weight: "500",
+                    weight: 500,
                   },
                 },
               },
