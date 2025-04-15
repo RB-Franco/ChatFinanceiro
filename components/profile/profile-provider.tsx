@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { getSupabase, isRLSError, isSessionMissingError } from "@/lib/supabase"
 import { useToast } from "@/components/ui/use-toast"
+import type { AuthChangeEvent } from "@supabase/supabase-js"
 
 // Tipo para o perfil do usuário
 export interface UserProfile {
@@ -450,7 +451,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     // Configurar listener para mudanças de autenticação
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
       if (event === "SIGNED_IN") {
         setIsAuthenticated(true)
         // Recarregar perfil apenas se o evento for SIGNED_IN
