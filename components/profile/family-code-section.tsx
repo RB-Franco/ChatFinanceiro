@@ -52,7 +52,8 @@ export function FamilyCodeSection() {
     }
 
     updateProfile({
-      ...profile,
+      ...profile!,
+      name: profile?.name || "Usuário", // Garantir que name nunca seja undefined
       familyCode: result,
     })
 
@@ -74,7 +75,8 @@ export function FamilyCodeSection() {
 
   const deleteFamilyCode = () => {
     updateProfile({
-      ...profile,
+      ...profile!,
+      name: profile?.name || "Usuário",
       familyCode: undefined,
     })
 
@@ -88,7 +90,8 @@ export function FamilyCodeSection() {
 
   const disassociateFromFamily = () => {
     updateProfile({
-      ...profile,
+      ...profile!,
+      name: profile?.name || "Usuário",
       associatedFamilyCode: undefined,
     })
 
@@ -121,7 +124,8 @@ export function FamilyCodeSection() {
     }
 
     updateProfile({
-      ...profile,
+      ...profile!,
+      name: profile?.name || "Usuário",
       associatedFamilyCode: associationCode,
     })
 
