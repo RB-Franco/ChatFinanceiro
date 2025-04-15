@@ -23,6 +23,9 @@ const SIDEBAR_WIDTH_ICON = "3rem"
 type SidebarContext = {
   state: "expanded" | "collapsed"
   toggleSidebar: () => void
+  isMobile: boolean
+  openMobile: boolean
+  setOpenMobile: (open: boolean) => void
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -48,7 +51,26 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     return "expanded" // Valor padrão
   })
 
+  const [isMobile, setIsMobile] = useState(false)
+  const [openMobile, setOpenMobile] = useState(false)
+
   const pathname = usePathname()
+
+  // Detectar se estamos em um dispositivo móvel
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    // Verificar inicialmente
+    checkMobile()
+
+    // Adicionar listener para redimensionamento
+    window.addEventListener("resize", checkMobile)
+
+    // Limpar listener
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   // Salvar o estado no localStorage quando ele mudar
   useEffect(() => {
@@ -68,7 +90,19 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => (prev === "expanded" ? "collapsed" : "expanded"))
   }
 
-  return <SidebarContext.Provider value={{ state, toggleSidebar }}>{children}</SidebarContext.Provider>
+  return (
+    <SidebarContext.Provider
+      value={{
+        state,
+        toggleSidebar,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+      }}
+    >
+      {children}
+    </SidebarContext.Provider>
+  )
 }
 
 const Sidebar = React.forwardRef<
