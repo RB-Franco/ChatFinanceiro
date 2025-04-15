@@ -213,7 +213,7 @@ export function YearlyChart({ includeFuture = true }: YearlyChartProps) {
                 ticks: {
                   color: theme === "dark" ? "#e5e7eb" : "#374151",
                   font: {
-                    weight: "500",
+                    weight: 500,
                     size: 13,
                   },
                 },
@@ -248,7 +248,7 @@ export function YearlyChart({ includeFuture = true }: YearlyChartProps) {
                   padding: 20,
                   font: {
                     size: 12,
-                    weight: "500",
+                    weight: 500,
                   },
                 },
               },

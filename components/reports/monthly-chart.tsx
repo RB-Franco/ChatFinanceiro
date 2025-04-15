@@ -197,7 +197,7 @@ export function MonthlyChart({ year, includeFuture = true }: MonthlyChartProps) 
                 ticks: {
                   color: theme === "dark" ? "#e5e7eb" : "#374151",
                   font: {
-                    weight: "500",
+                    weight: 500,
                   },
                 },
                 border: {
