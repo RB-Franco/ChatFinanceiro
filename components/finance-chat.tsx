@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useFinance, type Transaction, type TransactionType, type TransactionStatus } from "./finance-provider"
 import { formatCurrency } from "@/utils/format-currency"
 import { LoadingOverlay } from "./loading-overlay"
+import { useMobile } from "@/hooks/use-mobile"
 
 // Criar um contexto específico para o chat sidebar
 interface ChatSidebarContext {
@@ -31,6 +32,14 @@ function useChatSidebar() {
 // Provider para o contexto do chat sidebar
 export function ChatSidebarProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<"expanded" | "collapsed">("collapsed")
+  const isMobile = useMobile()
+
+  // Colapsar automaticamente em dispositivos móveis
+  useEffect(() => {
+    if (isMobile) {
+      setState("collapsed")
+    }
+  }, [isMobile])
 
   const toggleSidebar = () => {
     setState((prev) => (prev === "expanded" ? "collapsed" : "expanded"))
@@ -58,6 +67,7 @@ export function FinanceChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [chatLoading, setChatLoading] = useState(true)
   const [processingMessage, setProcessingMessage] = useState(false)
+  const isMobile = useMobile()
 
   // Usar o contexto do chat sidebar
   const { state: sidebarState, toggleSidebar } = useChatSidebar()
@@ -333,7 +343,7 @@ export function FinanceChat() {
 
   return (
     <div
-      className={`h-full flex flex-col border-l border-border transition-all duration-300 ${isCollapsed ? "w-[3.5rem]" : "w-[20rem]"} bg-[hsl(var(--sidebar-background))] relative sidebar-container`}
+      className={`h-full flex flex-col border-l border-border transition-all duration-300 ${isCollapsed ? "w-[3.5rem]" : "w-[20rem]"} bg-[hsl(var(--sidebar-background))] relative sidebar-container safe-area-padding`}
     >
       {/* Loading overlay específico para o chat */}
       {chatLoading && <LoadingOverlay show={chatLoading} message="Carregando mensagens..." fullScreen={false} />}
@@ -355,7 +365,7 @@ export function FinanceChat() {
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className={`h-full ${isCollapsed ? "px-0" : "px-4"}`}>
+        <ScrollArea className={`h-full ${isCollapsed ? "px-0" : "px-4"} mobile-scroll`}>
           <div className="py-4 space-y-3">
             {!isCollapsed &&
               messages.map((message) => (
@@ -401,7 +411,7 @@ export function FinanceChat() {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-10 w-10 rounded-full"
+              className="h-10 w-10 rounded-full mobile-touch-target"
               title="Expandir chat"
             >
               <PanelRight className="h-5 w-5" />

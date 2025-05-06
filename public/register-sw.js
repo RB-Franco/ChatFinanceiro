@@ -1,3 +1,4 @@
+// Verificar se o navegador suporta Service Workers antes de tentar registrar
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
@@ -24,7 +25,9 @@ function updateOnlineStatus() {
       if ("serviceWorker" in navigator && "SyncManager" in window) {
         navigator.serviceWorker.ready
           .then((registration) => registration.sync.register("sync-transactions"))
-          .catch((err) => console.log("Erro ao registrar sincronização:", err))
+          .catch((err) => {
+            console.log("Erro ao registrar sincronização:", err)
+          })
       }
     } else {
       statusIndicator.textContent = "Offline"

@@ -43,6 +43,7 @@ import {
 import { Loader2, LogOut } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Switch } from "@/components/ui/switch"
+import { useMobile } from "@/hooks/use-mobile"
 
 // Modificar a função MainSidebar para incluir o perfil
 export function MainSidebar() {
@@ -54,6 +55,7 @@ export function MainSidebar() {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
+  const isMobile = useMobile()
 
   // Necessário para evitar erro de hidratação
   useEffect(() => {
@@ -79,6 +81,13 @@ export function MainSidebar() {
       }
     }
   }, [state])
+
+  // Efeito para colapsar automaticamente o sidebar em dispositivos móveis
+  useEffect(() => {
+    if (isMobile && state === "expanded" && mounted) {
+      toggleSidebar()
+    }
+  }, [isMobile, mounted, state, toggleSidebar])
 
   const menuItems = [
     {
@@ -197,6 +206,11 @@ export function MainSidebar() {
 
     // Usar router.push para navegação do lado do cliente
     router.push(href)
+
+    // Em dispositivos móveis, colapsar o sidebar após a navegação
+    if (isMobile && state === "expanded") {
+      setTimeout(() => toggleSidebar(), 100)
+    }
   }
 
   // Renderizar um placeholder enquanto o perfil está carregando
@@ -217,7 +231,7 @@ export function MainSidebar() {
       collapsible="icon"
       className="bg-[hsl(var(--sidebar-background))] dashboard-transition sidebar-container border-r shadow-sm"
     >
-      <SidebarHeader className="py-4">
+      <SidebarHeader className="py-4 safe-area-padding">
         <div className={`flex ${isCollapsed ? "justify-center" : "justify-between"} px-4 py-2`}>
           <div className="flex items-center gap-3">
             <BarChart3 className="h-5 w-5 text-primary" />
@@ -242,7 +256,7 @@ export function MainSidebar() {
                   tooltip={item.title}
                   onClick={() => !isActive && navigateTo(item.href)}
                   className={`
-                   transition-all duration-200 rounded-lg
+                   transition-all duration-200 rounded-lg mobile-touch-target
                    ${
                      isActive
                        ? "bg-primary/10 text-primary font-medium shadow-sm border border-primary/10"
@@ -269,7 +283,7 @@ export function MainSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`w-full flex items-center p-2 rounded-lg hover:bg-muted/60 transition-colors ${
+                  className={`w-full flex items-center p-2 rounded-lg hover:bg-muted/60 transition-colors mobile-touch-target ${
                     isCollapsed ? "justify-center" : "justify-between"
                   }`}
                 >
@@ -359,7 +373,7 @@ export function MainSidebar() {
               <SidebarMenuButton
                 onClick={toggleSidebar}
                 tooltip="Expandir menu"
-                className="w-full hover:bg-muted/60 rounded-lg"
+                className="w-full hover:bg-muted/60 rounded-lg mobile-touch-target"
               >
                 <div className="w-full flex items-center gap-3 py-1">
                   <PanelRight className="h-5 w-5" />

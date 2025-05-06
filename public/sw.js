@@ -18,9 +18,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(STATIC_ASSETS)
-      })
+      .then((cache) => cache.addAll(STATIC_ASSETS))
       .then(() => self.skipWaiting()),
   )
 })
@@ -31,15 +29,15 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((cacheNames) => {
-        return Promise.all(
+      .then((cacheNames) =>
+        Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheWhitelist.indexOf(cacheName) === -1) {
               return caches.delete(cacheName)
             }
           }),
-        )
-      })
+        ),
+      )
       .then(() => self.clients.claim()),
   )
 })
@@ -97,27 +95,10 @@ self.addEventListener("sync", (event) => {
 
 // Função para sincronizar transações armazenadas localmente
 async function syncTransactions() {
-  const pendingTransactions = await getPendingTransactions()
-
-  if (pendingTransactions.length > 0) {
-    try {
-      // Aqui você implementaria a lógica para enviar as transações para o servidor
-      // Por enquanto, apenas simulamos o sucesso
-      await clearPendingTransactions()
-      return true
-    } catch (error) {
-      return false
-    }
+  try {
+    // Simulação de sincronização bem-sucedida
+    return true
+  } catch (error) {
+    return false
   }
-  return true
-}
-
-// Funções auxiliares para lidar com transações pendentes
-// Estas funções seriam implementadas usando IndexedDB na prática
-async function getPendingTransactions() {
-  return []
-}
-
-async function clearPendingTransactions() {
-  return true
 }

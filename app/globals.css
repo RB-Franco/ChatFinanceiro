@@ -26,7 +26,7 @@
     --radius: 0.5rem;
 
     /* Sidebar variables - Alterado para um lightgray mais sutil */
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 0 0% 96%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
@@ -85,6 +85,25 @@
   }
 }
 
+/* Suporte para safe-area em dispositivos móveis */
+.safe-area-padding {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-right: env(safe-area-inset-right, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+/* Ajustes para o layout principal em dispositivos móveis */
+@media (max-width: 640px) {
+  [data-sidebar="inset"] {
+    padding-top: env(safe-area-inset-top, 16px);
+  }
+
+  .dashboard-container {
+    padding-top: env(safe-area-inset-top, 16px);
+  }
+}
+
 /* Garantir que o modo escuro seja aplicado corretamente */
 .dark body {
   @apply bg-background text-foreground;
@@ -94,6 +113,11 @@
 [data-sidebar="sidebar"] {
   background-color: hsl(var(--sidebar-background));
   z-index: 50;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  padding-top: env(safe-area-inset-top, 0);
 }
 
 /* Estilos personalizados para a barra lateral colapsada */
@@ -144,24 +168,11 @@
   @apply flex-1 overflow-hidden;
   position: relative;
   z-index: 30;
+  width: 100%;
+  max-width: 100%;
   transition: margin-left 0.3s ease;
-}
-
-/* Ajuste para o layout principal quando o sidebar está expandido */
-.sidebar-expanded [data-sidebar="inset"] {
-  margin-left: var(--sidebar-width, 16rem);
-}
-
-/* Ajuste para o layout principal quando o sidebar está colapsado */
-.sidebar-collapsed [data-sidebar="inset"] {
-  margin-left: 0 !important; /* Forçar margem zero quando colapsado */
-}
-
-/* Garantir que o conteúdo principal seja responsivo */
-@media (max-width: 768px) {
-  [data-sidebar="inset"] {
-    margin-left: 0 !important;
-  }
+  height: 100vh;
+  height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
 }
 
 /* Ajustes para tabelas responsivas */
@@ -174,6 +185,36 @@ table {
   .date-filter-container {
     @apply flex-col items-start;
   }
+
+  /* Ajustes para o sidebar em dispositivos móveis */
+  [data-sidebar="sidebar"] {
+    height: 100vh;
+    height: calc(100vh - env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Ajustes para o chat sidebar em dispositivos móveis */
+  .sidebar-container {
+    height: 100vh;
+    height: calc(100vh - env(safe-area-inset-bottom, 0px));
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* Ajuste para o conteúdo principal */
+  [data-sidebar="inset"] > header {
+    padding-top: env(safe-area-inset-top, 16px);
+  }
+}
+
+/* Classes para áreas de toque em dispositivos móveis */
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Classe para melhorar a rolagem em dispositivos móveis */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
 }
 
 /* Gradientes de fundo para as páginas */
@@ -218,17 +259,31 @@ table {
 
 /* Transições suaves para todo o dashboard */
 .dashboard-transition {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   @apply transition-all duration-300 ease-in-out;
 }
 
 /* Padronização de cores e efeitos para cards */
 .dashboard-card {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   @apply bg-card border border-border/40 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out;
 }
 
 /* Melhorias de responsividade para o layout principal */
 .dashboard-container {
-  @apply w-full max-w-full px-2 sm:px-4 md:px-6 mx-auto;
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .dashboard-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
 
 .dashboard-grid {
@@ -262,7 +317,34 @@ table {
 
 /* Animações suaves para carregamento de conteúdo */
 .fade-in {
+  animation: fadeIn 0.6s ease-out;
   animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Adicionar novas animações e melhorar as existentes */
+/* Adicionar após a definição de .fade-in */
+
+/* Animação para elementos que aparecem com um atraso sequencial */
+.stagger-fade-in > * {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.stagger-fade-in > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.stagger-fade-in > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.stagger-fade-in > *:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.stagger-fade-in > *:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.stagger-fade-in > *:nth-child(5) {
+  animation-delay: 0.5s;
 }
 
 @keyframes fadeIn {
@@ -274,6 +356,28 @@ table {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Melhorar a transição do dashboard */
+.dashboard-transition {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Animação para quando os dados são atualizados */
+@keyframes pulse-fade {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.data-updating {
+  animation: pulse-fade 1.5s ease-in-out infinite;
 }
 
 /* Melhorias para scrollbars */
@@ -329,6 +433,8 @@ table {
 
 /* Estilos para o overlay de loading do conteúdo */
 .content-loading-overlay {
+  backdrop-filter: blur(4px);
+  transition: opacity 0.3s ease-in-out;
   position: absolute;
   top: 0;
   left: 0;
@@ -338,289 +444,126 @@ table {
   pointer-events: auto;
 }
 
-/* Melhorias visuais para a sidebar */
-[data-sidebar="menu-button"] {
-  @apply transition-all duration-200;
-}
-
-[data-sidebar="menu-button"][data-active="true"] {
-  @apply font-medium;
-}
-
-[data-sidebar="menu-button"]:hover {
-  @apply bg-muted/60;
-}
-
-[data-sidebar="menu-button"] > div {
-  @apply gap-3;
-}
-
-/* Melhorias visuais para o dashboard */
-.dashboard-header-gradient {
-  background: linear-gradient(to right, rgba(var(--primary), 0.05), rgba(var(--primary), 0.02));
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(var(--primary), 0.1);
-}
-
-/* Melhorias para os cards do dashboard */
-.dashboard-card {
-  transition: all 0.3s ease;
-  border-radius: 1rem;
-  overflow: hidden;
-}
-
-.dashboard-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-}
-
-/* Melhorias para os controles de filtro */
-.filter-controls {
-  background: rgba(var(--background), 1);
-  border-radius: 0.75rem;
-  padding: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(var(--border), 0.5);
-}
-
-/* Animação suave para os toggles */
-.toggle-transition {
-  transition: all 0.2s ease-in-out;
-}
-
-.toggle-transition:hover {
-  background-color: rgba(var(--primary), 0.05);
-}
-
-/* Melhorias para os gráficos */
-canvas {
-  border-radius: 0.75rem;
-}
-
-/* Melhorias para os cards de resumo */
-.summary-card {
-  border-radius: 1rem;
-  border: 1px solid rgba(var(--border), 0.5);
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.summary-card:hover {
-  border-color: rgba(var(--primary), 0.3);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-}
-
-/* Estilos para os botões de toggle de recursos */
-.feature-toggle {
-  @apply transition-all duration-200 transform;
-}
-
-.feature-toggle:hover {
-  @apply scale-105;
-}
-
-.feature-toggle:active {
-  @apply scale-95;
-}
-
-/* Melhorias para os cabeçalhos */
-.header-container {
-  @apply relative overflow-hidden;
-}
-
-.header-container::after {
-  content: "";
-  @apply absolute -bottom-6 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent;
-}
-
-/* Melhorias para os ícones de toggle */
-.toggle-icon {
-  @apply transition-transform duration-300;
-}
-
-.toggle-icon-active {
-  @apply text-primary-foreground;
-}
-
-/* Melhorias para os tooltips */
-.tooltip-enhanced {
-  @apply max-w-xs backdrop-blur-sm border-border/50 shadow-lg;
-  animation: tooltipFadeIn 0.2s ease-out;
-}
-
-@keyframes tooltipFadeIn {
+/* Animações para transições de página */
+@keyframes fadeOut {
   from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Adicionar estilos específicos para o seletor de datas */
-.date-selector {
-  @apply bg-background border rounded-lg shadow-sm transition-all;
-  position: relative;
-  overflow: hidden;
-}
-
-.date-selector::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(to right, hsl(var(--primary)), transparent);
-  opacity: 0.5;
-}
-
-.date-selector:hover {
-  @apply shadow-md;
-}
-
-.date-selector:hover::before {
-  opacity: 0.8;
-}
-
-/* Melhorias para os botões de navegação do calendário */
-.calendar-nav-button {
-  @apply text-muted-foreground hover:text-foreground transition-colors;
-  position: relative;
-  overflow: hidden;
-}
-
-.calendar-nav-button::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: hsl(var(--primary));
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  border-radius: inherit;
-}
-
-.calendar-nav-button:hover::after {
-  opacity: 0.1;
-}
-
-/* Melhorias para os selects do filtro de data */
-.date-select-trigger {
-  @apply border-0 bg-transparent focus:ring-0 focus:ring-offset-0 font-medium;
-  transition: all 0.2s ease;
-}
-
-.date-select-trigger:hover {
-  @apply text-primary;
-}
-
-.date-select-content {
-  @apply border border-border/50 shadow-lg rounded-md overflow-hidden;
-  animation: selectDropdown 0.2s ease-out;
-}
-
-@keyframes selectDropdown {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }
 
-/* Melhorias de responsividade mobile */
-.mobile-container {
-  @apply w-full px-2 sm:px-4 md:px-6;
+/* Overlay de transição de página */
+.page-transition-overlay {
+  animation: fadeIn 0.2s ease-in-out, fadeOut 0.3s ease-in-out 0.3s forwards;
+  pointer-events: none;
 }
 
-.mobile-hidden {
-  @apply hidden sm:block;
+/* Container de transição de página */
+.page-transition-container {
+  will-change: opacity, transform;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.mobile-only {
-  @apply block sm:hidden;
+/* Animação para saída de página */
+.page-transitioning-out {
+  animation: fadeOut 0.5s ease-in-out forwards;
 }
 
-/* Melhorar scrolling em dispositivos móveis */
-@layer utilities {
-  .mobile-touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
+/* Melhorar a transição entre temas */
+.dark body,
+body {
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
-@layer utilities {
-  .mobile-scroll {
-    overflow: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
+/* Melhorar a transição do sidebar */
+[data-sidebar="sidebar"] {
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Ajustes para tabelas responsivas em dispositivos móveis */
-.mobile-card-layout {
-  @apply block border rounded-lg p-3 mb-3 shadow-sm;
+/* Adicione estas regras no final do arquivo para garantir que os tooltips sempre fiquem na frente */
+
+/* Garantir que tooltips sempre fiquem na frente de tudo */
+.tooltip-overlay {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
 }
 
-/* Melhorar os grids para dispositivos móveis */
-.dashboard-grid-cols-1 {
-  @apply grid-cols-1;
+/* Ajuste para o chat sidebar */
+.sidebar-container {
+  z-index: 100;
 }
 
-.dashboard-grid-cols-2 {
-  @apply grid-cols-1 sm:grid-cols-2;
+/* Garantir que os tooltips não sejam cortados */
+[data-sidebar="inset"] {
+  overflow: visible !important;
 }
 
-.dashboard-grid-cols-3 {
-  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+/* Quando o tooltip estiver visível, garantir que ele não seja cortado */
+.group-hover\:visible {
+  z-index: 9999;
+  position: relative;
 }
 
-.dashboard-grid-cols-4 {
-  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4;
+/* Vamos adicionar estilos globais para garantir que todas as tooltips tenham fundo sólido */
+
+/* Adicione estas regras no final do arquivo para garantir que elas tenham prioridade */
+
+/* Garantir que tooltips tenham fundo sólido */
+[data-radix-tooltip-content-wrapper] {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-.dashboard-grid-cols-5 {
-  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5;
+[data-radix-tooltip-content] {
+  background-color: white !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+  z-index: 9999 !important;
 }
 
-/* Melhorar espaçamento em dispositivos móveis */
-@media (max-width: 640px) {
-  .dashboard-card {
-    @apply rounded-md shadow-sm;
-  }
-
-  .dashboard-spacing {
-    @apply space-y-3;
-  }
-
-  .dashboard-grid {
-    @apply gap-3;
-  }
+.dark [data-radix-tooltip-content] {
+  background-color: hsl(220, 10%, 12%) !important;
+  color: white !important;
+  border-color: hsl(240, 6%, 20%) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Melhorar visualização de formulários em dispositivos móveis */
-@media (max-width: 640px) {
-  .form-row {
-    @apply flex-col;
-  }
-
-  .form-row > * {
-    @apply w-full mb-2;
-  }
+/* Corrigir tooltips específicas */
+.tooltip-enhanced,
+.tooltip-overlay,
+[role="tooltip"] {
+  background-color: white !important;
+  color: hsl(var(--foreground)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 9999 !important;
 }
 
-/* Melhorar tooltips em dispositivos móveis */
-@media (max-width: 640px) {
-  .tooltip-enhanced {
-    @apply max-w-[calc(100vw-32px)];
-  }
+.dark .tooltip-enhanced,
+.dark .tooltip-overlay,
+.dark [role="tooltip"] {
+  background-color: hsl(220, 10%, 12%) !important;
+  color: white !important;
+}
+
+/* Garantir que tooltips dos relatórios sejam visíveis */
+.reports-gradient [role="tooltip"],
+.dashboard-gradient [role="tooltip"],
+.calendar-gradient [role="tooltip"],
+.profile-gradient [role="tooltip"] {
+  z-index: 9999 !important;
+  position: relative !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
 }

@@ -50,7 +50,7 @@ export default function RootLayout({
             <Toaster />
           </Providers>
         </ErrorBoundary>
-        <Script src="/register-sw.js" strategy="afterInteractive" />
+        <Script src="/register-sw.js" strategy="lazyOnload" type="text/javascript" />
       </body>
     </html>
   )
