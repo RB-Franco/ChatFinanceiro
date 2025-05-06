@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { AuthCheck } from "@/components/auth/auth-check"
 import { ConnectionStatus } from "@/components/connection-status"
+import { PWAInstallButton } from "@/components/pwa-install-button"
 import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -45,6 +46,7 @@ export default function RootLayout({
           <Providers>
             <AuthCheck redirectTo="/login">{children}</AuthCheck>
             <ConnectionStatus />
+            <PWAInstallButton />
             <Toaster />
           </Providers>
         </ErrorBoundary>
