@@ -88,7 +88,7 @@ export function DateFilter({
       initial={{ opacity: 0, y: -5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="flex items-center"
+      className="flex flex-wrap items-center gap-2"
     >
       <div className="bg-background border rounded-lg shadow-sm flex items-center p-2 relative overflow-hidden h-10">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-50 pointer-events-none"></div>
@@ -98,7 +98,7 @@ export function DateFilter({
           size="icon"
           onClick={handlePreviousMonth}
           aria-label="Mês anterior"
-          className="h-6 w-6 rounded-md text-muted-foreground hover:text-foreground"
+          className="h-6 w-6 rounded-md text-muted-foreground hover:text-foreground mobile-touch-target"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -108,7 +108,7 @@ export function DateFilter({
             <CalendarIcon className="h-4 w-4 text-primary mr-1 flex-shrink-0" />
 
             <Select value={month.toString()} onValueChange={handleMonthChange}>
-              <SelectTrigger className="w-[130px] h-6 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 font-medium">
+              <SelectTrigger className="w-[110px] sm:w-[130px] h-6 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 font-medium">
                 <SelectValue placeholder="Mês" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
@@ -121,7 +121,7 @@ export function DateFilter({
             </Select>
 
             <Select value={year.toString()} onValueChange={handleYearChange}>
-              <SelectTrigger className="w-[90px] h-6 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 font-medium">
+              <SelectTrigger className="w-[70px] sm:w-[90px] h-6 border-0 bg-transparent focus:ring-0 focus:ring-offset-0 font-medium">
                 <SelectValue placeholder="Ano" />
               </SelectTrigger>
               <SelectContent>
@@ -140,7 +140,7 @@ export function DateFilter({
           size="icon"
           onClick={handleNextMonth}
           aria-label="Próximo mês"
-          className="h-6 w-6 rounded-md text-muted-foreground hover:text-foreground"
+          className="h-6 w-6 rounded-md text-muted-foreground hover:text-foreground mobile-touch-target"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -150,10 +150,11 @@ export function DateFilter({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center space-x-2 ml-3 bg-background border rounded-lg p-1.5 shadow-sm h-10">
+              <div className="flex items-center space-x-2 bg-background border rounded-lg p-1.5 shadow-sm h-10">
                 <label htmlFor="family-toggle" className="text-sm font-medium cursor-pointer flex items-center">
                   <Users className="h-3.5 w-3.5 mr-1.5 text-primary" />
-                  <span>Transações familiares</span>
+                  <span className="hidden xs:inline">Transações familiares</span>
+                  <span className="xs:hidden">Familiar</span>
                 </label>
                 <Switch
                   id="family-toggle"

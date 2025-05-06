@@ -19,6 +19,10 @@ const config = {
       },
     },
     extend: {
+      screens: {
+        xs: "480px",
+        // Outros breakpoints já existentes permanecem inalterados
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

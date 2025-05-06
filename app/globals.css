@@ -536,3 +536,91 @@ canvas {
     transform: translateY(0);
   }
 }
+
+/* Melhorias de responsividade mobile */
+.mobile-container {
+  @apply w-full px-2 sm:px-4 md:px-6;
+}
+
+.mobile-hidden {
+  @apply hidden sm:block;
+}
+
+.mobile-only {
+  @apply block sm:hidden;
+}
+
+/* Melhorar scrolling em dispositivos móveis */
+@layer utilities {
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@layer utilities {
+  .mobile-scroll {
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Ajustes para tabelas responsivas em dispositivos móveis */
+.mobile-card-layout {
+  @apply block border rounded-lg p-3 mb-3 shadow-sm;
+}
+
+/* Melhorar os grids para dispositivos móveis */
+.dashboard-grid-cols-1 {
+  @apply grid-cols-1;
+}
+
+.dashboard-grid-cols-2 {
+  @apply grid-cols-1 sm:grid-cols-2;
+}
+
+.dashboard-grid-cols-3 {
+  @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+}
+
+.dashboard-grid-cols-4 {
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4;
+}
+
+.dashboard-grid-cols-5 {
+  @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5;
+}
+
+/* Melhorar espaçamento em dispositivos móveis */
+@media (max-width: 640px) {
+  .dashboard-card {
+    @apply rounded-md shadow-sm;
+  }
+
+  .dashboard-spacing {
+    @apply space-y-3;
+  }
+
+  .dashboard-grid {
+    @apply gap-3;
+  }
+}
+
+/* Melhorar visualização de formulários em dispositivos móveis */
+@media (max-width: 640px) {
+  .form-row {
+    @apply flex-col;
+  }
+
+  .form-row > * {
+    @apply w-full mb-2;
+  }
+}
+
+/* Melhorar tooltips em dispositivos móveis */
+@media (max-width: 640px) {
+  .tooltip-enhanced {
+    @apply max-w-[calc(100vw-32px)];
+  }
+}

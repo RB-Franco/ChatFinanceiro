@@ -204,7 +204,7 @@ export function FinanceCalendar({ month, year }: FinanceCalendarProps) {
           </div>
         </CardHeader>
         <CardContent className="p-3">
-          <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
             <div className="flex items-center p-2 rounded-md border bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10">
               <ArrowDownRight className="h-4 w-4 text-green-600 dark:text-green-400 mr-2" />
               <div>
@@ -243,7 +243,9 @@ export function FinanceCalendar({ month, year }: FinanceCalendarProps) {
           <div className="grid grid-cols-7 gap-1 w-full">
             {weekDays.map((day) => (
               <div key={day} className="text-center text-xs font-medium py-1 text-muted-foreground">
-                {day}
+                {/* Mostrar apenas a primeira letra em telas muito pequenas */}
+                <span className="hidden xs:inline">{day}</span>
+                <span className="xs:hidden">{day.charAt(0)}</span>
               </div>
             ))}
 

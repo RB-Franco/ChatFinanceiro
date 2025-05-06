@@ -39,6 +39,13 @@ export function CalendarDay({ date, isCurrentMonth, transactions, onClick }: Cal
     return ""
   }
 
+  const totalIncome = transactions.filter((t) => t.type === "receita").reduce((acc, t) => acc + t.amount, 0)
+  const totalExpense = transactions.filter((t) => t.type === "despesa").reduce((acc, t) => acc + t.amount, 0)
+  const futureCount = transactions.filter((t) => t.status === "futura").length
+  const hasIncome = totalIncome > 0
+  const hasExpense = totalExpense < 0
+  const hasFuture = futureCount > 0
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -46,52 +53,62 @@ export function CalendarDay({ date, isCurrentMonth, transactions, onClick }: Cal
           <div
             onClick={onClick}
             className={`
-              min-h-[80px] p-1 border rounded-md flex flex-col cursor-pointer transition-all
-              ${isCurrentMonth ? "bg-card" : "bg-muted/30 text-muted-foreground"}
-              ${isToday ? "ring-1 ring-primary" : ""}
-              ${isWeekend && isCurrentMonth ? "bg-muted/10" : ""}
-              ${getBgColor()}
-              hover:shadow-sm hover:border-primary/30 active:scale-[0.98] transition-all
-            `}
-            aria-label={`${formattedDate}${temSaldo ? `, ${transactions.length} transações` : ", nenhuma transação"}`}
-            role="button"
-            tabIndex={0}
+    relative flex flex-col items-center justify-start p-1 sm:p-2 
+    rounded-md cursor-pointer transition-colors
+    min-h-[40px] sm:min-h-[60px] text-center
+    ${isCurrentMonth ? "bg-card hover:bg-muted/50" : "bg-muted/20 text-muted-foreground hover:bg-muted/30"}
+    ${isToday ? "ring-2 ring-primary/30" : ""}
+  `}
           >
-            <div
-              className={`
-              text-right text-xs font-medium p-0.5 rounded-full w-5 h-5 flex items-center justify-center ml-auto
-              ${isToday ? "bg-primary text-primary-foreground" : ""}
-            `}
-            >
+            <span className={`text-xs sm:text-sm font-medium ${isCurrentMonth ? "" : "text-muted-foreground/70"}`}>
               {date.getDate()}
-            </div>
+            </span>
 
-            <div className="flex-1 flex flex-col gap-0.5 overflow-hidden mt-0.5">
-              {receitas > 0 && (
-                <div className="text-[10px] px-1 py-0.5 rounded-sm bg-green-100/70 dark:bg-green-900/30 text-green-800 dark:text-green-300 truncate flex items-center">
-                  <div className="w-1 h-1 rounded-full bg-green-500 mr-1" aria-hidden="true"></div>
-                  <span>+{formatCurrency(receitas)}</span>
-                </div>
+            {/* Indicadores de transação */}
+            <div className="flex flex-wrap justify-center gap-1 mt-1">
+              {hasIncome && (
+                <div
+                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500"
+                  title={`Receitas: ${formatCurrency(totalIncome)}`}
+                ></div>
               )}
-
-              {despesas < 0 && (
-                <div className="text-[10px] px-1 py-0.5 rounded-sm bg-red-100/70 dark:bg-red-900/30 text-red-800 dark:text-red-300 truncate flex items-center">
-                  <div className="w-1 h-1 rounded-full bg-red-500 mr-1" aria-hidden="true"></div>
-                  <span>{formatCurrency(despesas)}</span>
-                </div>
+              {hasExpense && (
+                <div
+                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500"
+                  title={`Despesas: ${formatCurrency(Math.abs(totalExpense))}`}
+                ></div>
               )}
-
-              {hasFutureTransactions && (
-                <div className="text-[10px] px-1 py-0.5 rounded-sm bg-amber-100/70 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 truncate flex items-center">
-                  <div className="w-1 h-1 rounded-full bg-amber-500 mr-1" aria-hidden="true"></div>
-                  <span>Futuras</span>
-                </div>
-              )}
-
-              {temSaldo && transactions.length > 1 && (
-                <div className="text-[10px] mt-auto text-right text-muted-foreground">{transactions.length}</div>
+              {hasFuture && (
+                <div
+                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500"
+                  title={`Transações futuras: ${futureCount}`}
+                ></div>
               )}
             </div>
+
+            {/* Valor total do dia - visível apenas em telas maiores */}
+            {(hasIncome || hasExpense) && (
+              <div className="hidden sm:block mt-1 text-xs font-medium">
+                <span
+                  className={`${
+                    totalIncome + totalExpense >= 0
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  {formatCurrency(totalIncome + totalExpense)}
+                </span>
+              </div>
+            )}
+
+            {/* Indicador de quantidade de transações */}
+            {transactions.length > 0 && (
+              <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1">
+                <span className="flex items-center justify-center w-3 h-3 sm:w-4 sm:h-4 text-[8px] sm:text-[10px] font-bold bg-primary/10 text-primary rounded-full">
+                  {transactions.length}
+                </span>
+              </div>
+            )}
           </div>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-[250px]">

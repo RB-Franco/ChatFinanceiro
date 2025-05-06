@@ -167,23 +167,27 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
         </CardHeader>
         <CardContent>
           {chartData.length > 0 ? (
-            <div className="space-y-6 w-full dashboard-transition">
+            <div className="space-y-4 w-full dashboard-transition">
               {/* Lista de categorias */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {chartData.map((item, index) => (
                   <div key={item.category} className="group">
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-8 h-8 rounded-md flex items-center justify-center"
+                          className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
                           style={{ backgroundColor: `${item.color}20`, color: item.color }}
                         >
                           {getCategoryIcon(item.category)}
                         </div>
                         <div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-medium capitalize">{item.category}</span>
-                            {index === 0 && <Badge className="bg-amber-500 hover:bg-amber-600">Maior gasto</Badge>}
+                            {index === 0 && (
+                              <Badge className="bg-amber-500 hover:bg-amber-600 text-xs whitespace-nowrap">
+                                Maior gasto
+                              </Badge>
+                            )}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {total > 0 ? Math.round((item.amount / total) * 100) : 0}% do total
@@ -191,7 +195,7 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 ml-auto">
                         <div className="text-right">
                           <div className="font-medium">{formatCurrency(item.amount)}</div>
                           <div className="text-xs text-muted-foreground">
@@ -210,7 +214,7 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
                         </div>
                         <button
                           onClick={() => handleShowSubcategories(item.category)}
-                          className="p-2 rounded-full hover:bg-muted transition-colors"
+                          className="p-2 rounded-full hover:bg-muted transition-colors mobile-touch-target"
                           title="Ver subcategorias"
                         >
                           <Eye className="h-4 w-4 text-muted-foreground" />
@@ -253,9 +257,9 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
 
       {/* Modal de subcategorias */}
       <Dialog open={showSubcategories} onOpenChange={setShowSubcategories}>
-        <DialogContent className="sm:max-w-[550px]">
+        <DialogContent className="sm:max-w-[550px] w-[calc(100%-32px)] max-h-[90vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
+            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
               {selectedCategory && (
                 <>
                   <div
@@ -267,7 +271,7 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
                   >
                     {getCategoryIcon(selectedCategory)}
                   </div>
-                  <span className="capitalize">Detalhes da categoria: {selectedCategory}</span>
+                  <span className="capitalize">Detalhes: {selectedCategory}</span>
                 </>
               )}
             </DialogTitle>
@@ -275,7 +279,7 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
 
           <div className="py-4">
             {selectedCategory && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {(() => {
                   // Filtrar transações da categoria selecionada
                   const categoryTransactions = getFilteredTransactions()
@@ -316,12 +320,12 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
 
                   return (
                     <>
-                      <div className="bg-muted/30 rounded-lg p-4 flex justify-between items-center mb-4">
+                      <div className="bg-muted/30 rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Resumo da categoria</p>
                           <span className="font-bold">{formatCurrency(categoryTotal)}</span>
                         </div>
-                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div className="flex flex-col sm:items-end text-sm text-muted-foreground">
                           <p>
                             Esta categoria possui {subcategoryArray.length} subcategoria
                             {subcategoryArray.length !== 1 ? "s" : ""}
@@ -346,10 +350,10 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
 
                           return (
                             <div key={name} className="bg-muted/10 p-3 rounded-lg hover:bg-muted/20 transition-colors">
-                              <div className="flex justify-between items-center mb-2">
+                              <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
                                 <div className="flex items-center gap-2">
                                   <div
-                                    className="w-6 h-6 rounded-md flex items-center justify-center"
+                                    className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
                                     style={{
                                       backgroundColor: `${subcategoryColor}20`,
                                       color: subcategoryColor,
@@ -359,7 +363,7 @@ export function ExpenseChart({ month, year, includeFuture = true }: ExpenseChart
                                   </div>
                                   <span className="capitalize font-medium">{name}</span>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 ml-auto">
                                   <span className="text-sm font-medium">{formatCurrency(amount)}</span>
                                   <Badge variant="outline" className="font-normal">
                                     {Math.round(percentage)}%

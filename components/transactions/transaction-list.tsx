@@ -65,66 +65,118 @@ export function TransactionList() {
         <CardContent className="flex-1 overflow-hidden flex flex-col">
           {mounted ? (
             filteredTransactions.length > 0 ? (
-              <div className="w-full overflow-x-auto flex-1">
-                <table className="w-full min-w-[800px]">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2 font-medium text-sm">Data</th>
-                      <th className="text-left py-2 font-medium text-sm">Descrição</th>
-                      <th className="text-left py-2 font-medium text-sm">Categoria</th>
-                      <th className="text-right py-2 font-medium text-sm">Valor</th>
-                      <th className="text-right py-2 font-medium text-sm">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTransactions.map((transaction) => (
-                      <tr key={transaction.id} className="border-b last:border-0">
-                        <td className="py-2 text-sm">{formatDate(transaction.date)}</td>
-                        <td className="py-2 text-sm truncate max-w-[200px]">
-                          <div className="flex items-center">
-                            {transaction.description}
+              <div className="w-full overflow-hidden flex-1">
+                {/* Visualização de tabela para desktop */}
+                <div className="hidden sm:block overflow-x-auto w-full h-full">
+                  <table className="w-full min-w-[800px]">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 font-medium text-sm">Data</th>
+                        <th className="text-left py-2 font-medium text-sm">Descrição</th>
+                        <th className="text-left py-2 font-medium text-sm">Categoria</th>
+                        <th className="text-right py-2 font-medium text-sm">Valor</th>
+                        <th className="text-right py-2 font-medium text-sm">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTransactions.map((transaction) => (
+                        <tr key={transaction.id} className="border-b last:border-0">
+                          <td className="py-2 text-sm">{formatDate(transaction.date)}</td>
+                          <td className="py-2 text-sm truncate max-w-[200px]">
+                            <div className="flex items-center">
+                              {transaction.description}
+                              {transaction.family_code && (
+                                <div className="flex items-center" title="Transação familiar">
+                                  <Users className="h-3 w-3 text-primary ml-1" />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-2 text-sm capitalize truncate max-w-[150px]">
+                            {transaction.category}
+                            {transaction.subcategory && ` / ${transaction.subcategory}`}
+                          </td>
+                          <td
+                            className={`py-2 text-sm text-right whitespace-nowrap ${
+                              transaction.amount >= 0 ? "text-green-500" : "text-red-500"
+                            }`}
+                          >
+                            {formatCurrencyWithUserSettings(transaction.amount)}
+                          </td>
+                          <td className="py-2 text-sm text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEdit(transaction)}
+                                aria-label={`Editar transação: ${transaction.description}`}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(transaction.id)}
+                                aria-label={`Excluir transação: ${transaction.description}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Visualização de cards para mobile */}
+                <div className="sm:hidden w-full mobile-scroll overflow-y-auto max-h-[calc(100vh-220px)]">
+                  {filteredTransactions.map((transaction) => (
+                    <div key={transaction.id} className="mobile-card-layout bg-card">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium text-sm line-clamp-1">{transaction.description}</span>
                             {transaction.family_code && (
-                              <div className="flex items-center" title="Transação familiar">
-                                <Users className="h-3 w-3 text-primary ml-1" />
-                              </div>
+                              <Users className="h-3 w-3 text-primary" title="Transação familiar" />
                             )}
                           </div>
-                        </td>
-                        <td className="py-2 text-sm capitalize truncate max-w-[150px]">
+                          <span className="text-xs text-muted-foreground">{formatDate(transaction.date)}</span>
+                        </div>
+                        <div className={`font-medium ${transaction.amount >= 0 ? "text-green-500" : "text-red-500"}`}>
+                          {formatCurrencyWithUserSettings(transaction.amount)}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="text-xs capitalize bg-muted px-2 py-1 rounded-full">
                           {transaction.category}
                           {transaction.subcategory && ` / ${transaction.subcategory}`}
-                        </td>
-                        <td
-                          className={`py-2 text-sm text-right whitespace-nowrap ${
-                            transaction.amount >= 0 ? "text-green-500" : "text-red-500"
-                          }`}
-                        >
-                          {formatCurrencyWithUserSettings(transaction.amount)}
-                        </td>
-                        <td className="py-2 text-sm text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(transaction)}
-                              aria-label={`Editar transação: ${transaction.description}`}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(transaction.id)}
-                              aria-label={`Excluir transação: ${transaction.description}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 mobile-touch-target"
+                            onClick={() => handleEdit(transaction)}
+                            aria-label={`Editar transação: ${transaction.description}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 mobile-touch-target"
+                            onClick={() => handleDelete(transaction.id)}
+                            aria-label={`Excluir transação: ${transaction.description}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground flex-1 flex items-center justify-center">
@@ -133,7 +185,7 @@ export function TransactionList() {
             )
           ) : (
             <div className="w-full overflow-x-auto flex-1">
-              <table className="w-full min-w-[600px]">
+              <table className="w-full min-w-[600px] hidden sm:table">
                 <thead>
                   <tr className="border-b">
                     <th className="text-left py-2 font-medium text-sm">Data</th>
@@ -153,6 +205,15 @@ export function TransactionList() {
                   ))}
                 </tbody>
               </table>
+
+              {/* Skeleton para mobile */}
+              <div className="sm:hidden space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="mobile-card-layout">
+                    <div className="animate-pulse bg-muted h-16 rounded-md"></div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </CardContent>

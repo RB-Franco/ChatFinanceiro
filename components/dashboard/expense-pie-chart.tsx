@@ -172,16 +172,17 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
         },
         plugins: {
           legend: {
-            position: "right",
+            position: window.innerWidth < 768 ? "bottom" : "right", // Posicionar a legenda abaixo em dispositivos móveis
             labels: {
               color: theme === "dark" ? "#e5e7eb" : "#374151",
               usePointStyle: true,
               pointStyle: "circle",
-              padding: 15,
+              padding: window.innerWidth < 768 ? 10 : 15,
               font: {
                 size: 11,
                 weight: "bold",
               },
+              // Limitar o tamanho do texto da legenda em dispositivos móveis
               generateLabels: (chart) => {
                 const data = chart.data
                 if (data.labels && data.datasets.length) {
@@ -195,8 +196,14 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
                     }, 0)
                     const percentage = total > 0 ? Math.round((value / total) * 100) : 0
 
+                    // Limitar o tamanho do texto da legenda em dispositivos móveis
+                    let displayLabel = label as string
+                    if (window.innerWidth < 768 && displayLabel.length > 10) {
+                      displayLabel = displayLabel.substring(0, 10) + "..."
+                    }
+
                     return {
-                      text: `${label} (${percentage}%)`,
+                      text: `${displayLabel} (${percentage}%)`,
                       fillStyle: style.backgroundColor,
                       strokeStyle: style.backgroundColor, // Alterado para usar a mesma cor de fundo
                       lineWidth: 0, // Removida a borda do marcador da legenda
@@ -208,6 +215,8 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
                 return []
               },
             },
+            // Limitar o número de itens na legenda em dispositivos móveis
+            maxItems: window.innerWidth < 768 ? 5 : undefined,
           },
           tooltip: {
             backgroundColor: theme === "dark" ? "#1e1e1e" : "#ffffff",
@@ -327,11 +336,11 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
           <div className="h-[350px] animate-pulse bg-muted rounded-md"></div>
         ) : (
           <div className="space-y-4 dashboard-transition">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-muted/30 rounded-lg p-4 flex justify-between items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="bg-muted/30 rounded-lg p-3 sm:p-4 flex justify-between items-center">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Despesas</p>
-                  <p className="text-xl font-bold text-red-500">{formatCurrency(totalExpenses)}</p>
+                  <p className="text-lg sm:text-xl font-bold text-red-500">{formatCurrency(totalExpenses)}</p>
                   {totalAmount > 0 && (
                     <div className="text-xs text-muted-foreground">
                       {Math.round((totalExpenses / totalAmount) * 100)}% do total
@@ -343,10 +352,10 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
                 </div>
               </div>
 
-              <div className="bg-muted/30 rounded-lg p-4 flex justify-between items-center">
+              <div className="bg-muted/30 rounded-lg p-3 sm:p-4 flex justify-between items-center">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Receitas</p>
-                  <p className="text-xl font-bold text-green-500">{formatCurrency(totalIncome)}</p>
+                  <p className="text-lg sm:text-xl font-bold text-green-500">{formatCurrency(totalIncome)}</p>
                   {totalAmount > 0 && (
                     <div className="text-xs text-muted-foreground">
                       {Math.round((totalIncome / totalAmount) * 100)}% do total
@@ -359,7 +368,7 @@ export function ExpensePieChart({ month, year, includeFuture = true }: ExpensePi
               </div>
             </div>
 
-            <div className="h-[350px] relative w-full dashboard-transition">
+            <div className="h-[300px] sm:h-[350px] relative w-full dashboard-transition">
               <canvas
                 ref={chartRef}
                 key={`pie-chart-${month}-${year}-${includeFuture ? "with-future" : "no-future"}`}

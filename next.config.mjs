@@ -20,6 +20,20 @@ const nextConfig = {
   experimental: {
     optimizeServerReact: true,
   },
+  // Configurações adicionais para PWA
+  headers: async () => {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=86400',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 export default nextConfig
