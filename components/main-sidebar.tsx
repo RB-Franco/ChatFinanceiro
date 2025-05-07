@@ -238,7 +238,7 @@ export function MainSidebar() {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 md:hidden bg-primary text-primary-foreground shadow-lg rounded-full h-12 w-12"
+        className="fixed bottom-4 left-10 transform -translate-x-1/2 z-50 md:hidden bg-primary text-primary-foreground shadow-lg rounded-full h-12 w-12"
         onClick={() => setShowMobileMenu(!showMobileMenu)}
         aria-label={showMobileMenu ? "Fechar menu" : "Abrir menu"}
       >
