@@ -85,64 +85,6 @@
   }
 }
 
-@layer utilities {
-  /* Classes para áreas de toque em dispositivos móveis */
-  .mobile-touch-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Classe para melhorar a rolagem em dispositivos móveis */
-  .mobile-scroll {
-    overflow: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Classes para áreas seguras */
-  .safe-area-padding {
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-  }
-
-  .safe-area-padding-top {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-
-  .safe-area-padding-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  .pt-safe {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-}
-
-/* Suporte para safe-area em dispositivos móveis */
-.safe-area-padding {
-  padding-top: env(safe-area-inset-top, 0);
-  padding-right: env(safe-area-inset-right, 0);
-  padding-bottom: env(safe-area-inset-bottom, 0);
-  padding-left: env(safe-area-inset-left, 0);
-}
-
-/* Ajustes para o layout principal em dispositivos móveis */
-@media (max-width: 640px) {
-  [data-sidebar="inset"] {
-    padding-top: env(safe-area-inset-top, 16px);
-  }
-
-  .dashboard-container {
-    padding-top: env(safe-area-inset-top, 16px);
-  }
-}
-
 /* Garantir que o modo escuro seja aplicado corretamente */
 .dark body {
   @apply bg-background text-foreground;
@@ -152,11 +94,6 @@
 [data-sidebar="sidebar"] {
   background-color: hsl(var(--sidebar-background));
   z-index: 50;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  padding-top: env(safe-area-inset-top, 0);
 }
 
 /* Estilos personalizados para a barra lateral colapsada */
@@ -210,8 +147,6 @@
   width: 100%;
   max-width: 100%;
   transition: margin-left 0.3s ease;
-  height: 100vh;
-  height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
 }
 
 /* Ajustes para tabelas responsivas */
@@ -225,22 +160,20 @@ table {
     @apply flex-col items-start;
   }
 
-  /* Ajustes para o sidebar em dispositivos móveis */
-  [data-sidebar="sidebar"] {
-    height: 100vh;
-    height: calc(100vh - env(safe-area-inset-bottom, 0px));
+  /* Centralizar conteúdo em dispositivos móveis */
+  .dashboard-container {
+    @apply mx-auto px-4;
+    max-width: 100%;
   }
 
-  /* Ajustes para o chat sidebar em dispositivos móveis */
-  .sidebar-container {
-    height: 100vh;
-    height: calc(100vh - env(safe-area-inset-bottom, 0px));
-    padding-top: env(safe-area-inset-top, 0);
+  /* Ajustar padding para melhor visualização em mobile */
+  [data-sidebar="inset"] > div {
+    @apply px-2;
   }
 
-  /* Ajuste para o conteúdo principal */
-  [data-sidebar="inset"] > header {
-    padding-top: env(safe-area-inset-top, 16px);
+  /* Centralizar cards e grids */
+  .dashboard-grid {
+    @apply mx-auto;
   }
 }
 
@@ -300,8 +233,8 @@ table {
 .dashboard-container {
   width: 100%;
   max-width: 100%;
-  margin-left: 0;
-  margin-right: 0;
+  margin-left: auto;
+  margin-right: auto;
   padding-left: 1rem;
   padding-right: 1rem;
 }
@@ -344,8 +277,12 @@ table {
 
 /* Animações suaves para carregamento de conteúdo */
 .fade-in {
+  animation: fadeIn 0.6s ease-out;
   animation: fadeIn 0.5s ease-in-out;
 }
+
+/* Adicionar novas animações e melhorar as existentes */
+/* Adicionar após a definição de .fade-in */
 
 /* Animação para elementos que aparecem com um atraso sequencial */
 .stagger-fade-in > * {
@@ -379,6 +316,11 @@ table {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Melhorar a transição do dashboard */
+.dashboard-transition {
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Animação para quando os dados são atualizados */
@@ -447,6 +389,21 @@ table {
   [data-sidebar="sidebar"] {
     @apply transition-all duration-300 ease-in-out;
   }
+
+  /* Centralizar conteúdo em dispositivos móveis */
+  .dashboard-container,
+  .dashboard-grid,
+  .dashboard-card {
+    @apply mx-auto;
+  }
+
+  /* Ajustar margens para centralizar */
+  main,
+  section,
+  article,
+  div[role="main"] {
+    @apply mx-auto;
+  }
 }
 
 /* Estilos para o overlay de loading do conteúdo */
@@ -505,6 +462,8 @@ body {
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Adicione estas regras no final do arquivo para garantir que os tooltips sempre fiquem na frente */
+
 /* Garantir que tooltips sempre fiquem na frente de tudo */
 .tooltip-overlay {
   position: fixed;
@@ -527,6 +486,10 @@ body {
   z-index: 9999;
   position: relative;
 }
+
+/* Vamos adicionar estilos globais para garantir que todas as tooltips tenham fundo sólido */
+
+/* Adicione estas regras no final do arquivo para garantir que elas tenham prioridade */
 
 /* Garantir que tooltips tenham fundo sólido */
 [data-radix-tooltip-content-wrapper] {
@@ -580,111 +543,46 @@ body {
   display: block !important;
 }
 
-/* Adicionar estilos para o overlay do sidebar */
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 30;
-  transition: opacity 0.3s ease;
-}
-
-/* Ajustes para dispositivos móveis */
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding-left: 0 !important;
-  }
-
-  .sidebar-container {
-    transition: transform 0.3s ease;
-  }
-
-  /* Melhorias para o menu móvel */
-  .mobile-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .mobile-menu-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid hsl(var(--border));
-  }
-
-  .mobile-menu-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-  }
-
-  .mobile-menu-footer {
-    border-top: 1px solid hsl(var(--border));
-    padding: 1rem;
-  }
-}
-
-/* Estilos específicos para PWA */
-@media (display-mode: standalone) {
-  body {
-    overscroll-behavior-y: none;
-  }
-
-  .pwa-only {
-    display: block;
-  }
-
-  .browser-only {
-    display: none;
-  }
-}
-
-/* Estilos para splash screen */
-.splash-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: hsl(var(--background));
-  z-index: 9999;
+/* Estilos para o botão de instalação PWA */
+.install-pwa-button {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.5s ease-in-out;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: 9999px;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
 }
 
-.splash-screen.hidden {
-  opacity: 0;
-  pointer-events: none;
+.install-pwa-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.splash-logo {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 2rem;
-  animation: pulse 1.5s infinite ease-in-out;
+.install-pwa-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    opacity: 0.7;
+/* Centralização para dispositivos móveis */
+@media (max-width: 768px) {
+  .mobile-centered {
+    @apply mx-auto text-center flex flex-col items-center justify-center;
   }
-  50% {
-    transform: scale(1);
-    opacity: 1;
+
+  .mobile-container {
+    @apply px-4 mx-auto max-w-full;
   }
-  100% {
-    transform: scale(0.95);
-    opacity: 0.7;
+
+  /* Ajustar o conteúdo principal para centralizar */
+  main > div,
+  [data-sidebar="inset"] > div,
+  .dashboard-container {
+    @apply mx-auto;
+    max-width: 100%;
   }
 }

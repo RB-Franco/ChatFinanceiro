@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import { AuthCheck } from "@/components/auth/auth-check"
 import { ConnectionStatus } from "@/components/connection-status"
 import Script from "next/script"
+import { PWAInstallButton } from "@/components/pwa-install-button"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -58,11 +59,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#0f172a" />
         <meta name="application-name" content="FinanceChat" />
       </head>
-      <body className={`${inter.className}`}>
+      <body className={`${inter.className} mobile-centered`}>
         <ErrorBoundary>
           <Providers>
             <AuthCheck redirectTo="/login">{children}</AuthCheck>
             <ConnectionStatus />
+            <PWAInstallButton />
             <Toaster />
           </Providers>
         </ErrorBoundary>
@@ -84,15 +86,18 @@ export default function RootLayout({
             // Verificar se o app está sendo executado como PWA
             if (window.matchMedia('(display-mode: standalone)').matches) {
               document.documentElement.classList.add('pwa-mode');
+              console.log('Aplicativo está sendo executado como PWA');
             }
             
             // Lidar com eventos de online/offline
             window.addEventListener('online', () => {
               document.documentElement.classList.remove('offline-mode');
+              console.log('Aplicativo está online');
             });
             
             window.addEventListener('offline', () => {
               document.documentElement.classList.add('offline-mode');
+              console.log('Aplicativo está offline');
             });
             
             // Verificar se o app pode ser instalado
@@ -103,14 +108,17 @@ export default function RootLayout({
               // Armazenar o evento para uso posterior
               window.deferredPrompt = e;
               
-              // Mostrar o botão de instalação
-              const installButtons = document.querySelectorAll('.install-pwa-button');
-              installButtons.forEach(button => {
-                button.style.display = 'block';
-              });
+              console.log('App pode ser instalado - evento capturado no layout');
               
-              console.log('App pode ser instalado');
+              // Disparar um evento personalizado para notificar componentes
+              const event = new CustomEvent('pwaInstallable', { detail: e });
+              window.dispatchEvent(event);
             });
+            
+            // Verificar se já está instalado
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+              console.log('Aplicativo já está instalado');
+            }
           `}
         </Script>
       </body>

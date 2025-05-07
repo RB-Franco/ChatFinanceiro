@@ -6,82 +6,91 @@ import { useEffect, useState } from "react"
 
 export function PWAInstallButton() {
   const [installPrompt, setInstallPrompt] = useState<any>(null)
-  const [isInstallable, setIsInstallable] = useState(false)
-  const [isInstalled, setIsInstalled] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     // Verificar se já está instalado
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstalled(true)
-      return
-    }
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches
 
-    // Verificar se há um prompt de instalação armazenado
-    if (window.deferredPrompt) {
-      setInstallPrompt(window.deferredPrompt)
-      setIsInstallable(true)
-    }
-
-    // Adicionar listener para o evento beforeinstallprompt
-    const handleBeforeInstallPrompt = (e: Event) => {
+    // Função para capturar o evento beforeinstallprompt
+    const handleBeforeInstallPrompt = (e: any) => {
       // Prevenir o comportamento padrão
       e.preventDefault()
 
-      // Armazenar o evento
+      // Armazenar o evento para uso posterior
       setInstallPrompt(e)
-      setIsInstallable(true)
+      setIsVisible(true)
 
-      // Também armazenar globalmente
-      window.deferredPrompt = e
+      console.log("App pode ser instalado - evento capturado")
     }
 
-    // Adicionar listener para o evento appinstalled
-    const handleAppInstalled = () => {
-      setIsInstalled(true)
-      setIsInstallable(false)
-      setInstallPrompt(null)
-      window.deferredPrompt = null
+    // Verificar se o evento já foi armazenado globalmente
+    if (window.deferredPrompt) {
+      setInstallPrompt(window.deferredPrompt)
+      setIsVisible(true)
     }
 
+    // Adicionar listener para o evento
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-    window.addEventListener("appinstalled", handleAppInstalled)
+
+    // Verificar se o app foi instalado
+    window.addEventListener("appinstalled", () => {
+      setIsVisible(false)
+      console.log("App foi instalado")
+    })
+
+    // Forçar visibilidade do botão em dispositivos móveis para teste
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    if (isMobile && !isStandalone) {
+      // Mostrar o botão após 2 segundos em dispositivos móveis para teste
+      setTimeout(() => {
+        setIsVisible(true)
+      }, 2000)
+    }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-      window.removeEventListener("appinstalled", handleAppInstalled)
     }
   }, [])
 
   const handleInstallClick = async () => {
-    if (!installPrompt) return
+    if (!installPrompt) {
+      // Se não temos o prompt, mas estamos em um dispositivo iOS
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+
+      if (isIOS) {
+        alert(
+          "Para instalar este app no seu iPhone: toque no ícone de compartilhamento e depois em 'Adicionar à Tela de Início'",
+        )
+        return
+      }
+
+      // Para outros dispositivos onde o prompt não está disponível
+      alert("Para instalar este app, abra-o no Chrome e toque em 'Adicionar à tela inicial'")
+      return
+    }
 
     // Mostrar o prompt de instalação
     installPrompt.prompt()
 
-    // Aguardar a escolha do usuário
-    const { outcome } = await installPrompt.userChoice
+    // Esperar pela escolha do usuário
+    const choiceResult = await installPrompt.userChoice
 
-    // Limpar o prompt após a escolha
-    setInstallPrompt(null)
-    window.deferredPrompt = null
-
-    if (outcome === "accepted") {
-      setIsInstalled(true)
+    if (choiceResult.outcome === "accepted") {
+      console.log("Usuário aceitou a instalação")
+    } else {
+      console.log("Usuário recusou a instalação")
     }
+
+    // Limpar o prompt
+    setInstallPrompt(null)
   }
 
-  if (isInstalled || !isInstallable) {
-    return null
-  }
+  if (!isVisible) return null
 
   return (
-    <Button
-      onClick={handleInstallClick}
-      className="install-pwa-button flex items-center gap-2"
-      variant="outline"
-      size="sm"
-    >
-      <Download className="h-4 w-4" />
+    <Button onClick={handleInstallClick} className="fixed bottom-20 right-4 z-50 shadow-lg rounded-full" size="sm">
+      <Download className="mr-2 h-4 w-4" />
       Instalar App
     </Button>
   )

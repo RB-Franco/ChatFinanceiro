@@ -150,7 +150,8 @@ export function MainSidebar() {
 
     // Limpar cada cookie definindo sua data de expiração no passado
     cookiesToClear.forEach((cookieName) => {
-      document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict;`
+      document.cookie = `${cookieName}=; path=/; expires=Thu,   => {
+      document.cookie = \`${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict;`
     })
   }
 
@@ -237,7 +238,7 @@ export function MainSidebar() {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden bg-background/80 backdrop-blur-sm shadow-md rounded-full"
+        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 md:hidden bg-primary text-primary-foreground shadow-lg rounded-full h-12 w-12"
         onClick={() => setShowMobileMenu(!showMobileMenu)}
         aria-label={showMobileMenu ? "Fechar menu" : "Abrir menu"}
       >
