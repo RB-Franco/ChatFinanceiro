@@ -2,16 +2,13 @@
 
 import { useState, useEffect } from "react"
 
-export function useMobile(breakpoint = 768): boolean {
+export function useMobile(): boolean {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    // Verificar se estamos no cliente
-    if (typeof window === "undefined") return
-
-    // Função para verificar o tamanho da tela
+    // Função para verificar se é dispositivo móvel
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < breakpoint)
+      setIsMobile(window.innerWidth < 768)
     }
 
     // Verificar inicialmente
@@ -22,7 +19,7 @@ export function useMobile(breakpoint = 768): boolean {
 
     // Limpar listener
     return () => window.removeEventListener("resize", checkMobile)
-  }, [breakpoint])
+  }, [])
 
   return isMobile
 }

@@ -6,6 +6,11 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
   const res = NextResponse.next()
 
+  // Verificar se estamos em modo de desenvolvimento com bypass ativado
+  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+    return res
+  }
+
   // Verificar se há um cookie de login bem-sucedido
   const loginSuccessCookie = request.cookies.get("auth_login_success")
   const isLoginSuccess = loginSuccessCookie?.value === "true"
@@ -63,11 +68,6 @@ export async function middleware(request: NextRequest) {
     return res
   }
 
-  // Verificar se o código de bypass está funcionando corretamente
-  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
-    return res
-  }
-
   try {
     // Verificar se o usuário está autenticado
     const {
@@ -76,6 +76,11 @@ export async function middleware(request: NextRequest) {
 
     // Se não estiver autenticado, redirecionar para o login
     if (!session) {
+      // Evitar redirecionamentos circulares verificando se já estamos em uma página de login
+      if (url.pathname.includes("/login")) {
+        return res
+      }
+
       // Redirecionar para o login com a rota atual como parâmetro de redirecionamento
       url.pathname = "/login"
       url.searchParams.set("redirect", request.nextUrl.pathname)
@@ -100,7 +105,9 @@ export const config = {
      * - favicon.ico (favicon file)
      * - images (image files)
      * - public files
+     * - api routes
+     * - service worker
      */
-    "/((?!_next/static|_next/image|favicon.ico|images|public).*)",
+    "/((?!_next/static|_next/image|favicon.ico|images|public|api|sw.js).*)",
   ],
 }

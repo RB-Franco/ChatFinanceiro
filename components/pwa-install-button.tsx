@@ -1,82 +1,88 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
+import { useEffect, useState } from "react"
 
 export function PWAInstallButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [installPrompt, setInstallPrompt] = useState<any>(null)
   const [isInstallable, setIsInstallable] = useState(false)
-  const [isIOS, setIsIOS] = useState(false)
-  const [showIOSInstructions, setShowIOSInstructions] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
-    // Detectar se é iOS
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-    setIsIOS(isIOSDevice)
+    // Verificar se já está instalado
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true)
+      return
+    }
 
-    // Capturar o evento beforeinstallprompt (só funciona em Android/Chrome)
-    const handleBeforeInstallPrompt = (e: Event) => {
-      // Prevenir o comportamento padrão
-      e.preventDefault()
-      // Armazenar o evento para uso posterior
-      setDeferredPrompt(e)
-      // Mostrar o botão de instalação
+    // Verificar se há um prompt de instalação armazenado
+    if (window.deferredPrompt) {
+      setInstallPrompt(window.deferredPrompt)
       setIsInstallable(true)
     }
 
+    // Adicionar listener para o evento beforeinstallprompt
+    const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevenir o comportamento padrão
+      e.preventDefault()
+
+      // Armazenar o evento
+      setInstallPrompt(e)
+      setIsInstallable(true)
+
+      // Também armazenar globalmente
+      window.deferredPrompt = e
+    }
+
+    // Adicionar listener para o evento appinstalled
+    const handleAppInstalled = () => {
+      setIsInstalled(true)
+      setIsInstallable(false)
+      setInstallPrompt(null)
+      window.deferredPrompt = null
+    }
+
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+    window.addEventListener("appinstalled", handleAppInstalled)
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+      window.removeEventListener("appinstalled", handleAppInstalled)
     }
   }, [])
 
   const handleInstallClick = async () => {
-    if (isIOS) {
-      // Mostrar instruções para iOS
-      setShowIOSInstructions(true)
-    } else if (deferredPrompt) {
-      // Mostrar o prompt de instalação
-      deferredPrompt.prompt()
+    if (!installPrompt) return
 
-      // Aguardar a resposta do usuário
-      const { outcome } = await deferredPrompt.userChoice
+    // Mostrar o prompt de instalação
+    installPrompt.prompt()
 
-      // Limpar o prompt armazenado
-      setDeferredPrompt(null)
-      setIsInstallable(false)
+    // Aguardar a escolha do usuário
+    const { outcome } = await installPrompt.userChoice
 
-      // Registrar o resultado (opcional)
-      console.log(`Resultado da instalação: ${outcome}`)
+    // Limpar o prompt após a escolha
+    setInstallPrompt(null)
+    window.deferredPrompt = null
+
+    if (outcome === "accepted") {
+      setIsInstalled(true)
     }
   }
 
-  if (!isInstallable && !isIOS) return null
+  if (isInstalled || !isInstallable) {
+    return null
+  }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      {showIOSInstructions && isIOS ? (
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-lg max-w-xs">
-          <h3 className="font-bold mb-2">Instalar no iOS:</h3>
-          <ol className="list-decimal pl-5 text-sm space-y-1">
-            <li>
-              Toque no ícone de compartilhamento{" "}
-              <span className="inline-block w-5 h-5 text-center border rounded">↑</span>
-            </li>
-            <li>Role para baixo e toque em "Adicionar à Tela de Início"</li>
-            <li>Toque em "Adicionar" no canto superior</li>
-          </ol>
-          <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => setShowIOSInstructions(false)}>
-            Fechar
-          </Button>
-        </div>
-      ) : (
-        <Button onClick={handleInstallClick} className="shadow-lg flex items-center gap-2">
-          <Download size={16} />
-          Instalar Aplicativo
-        </Button>
-      )}
-    </div>
+    <Button
+      onClick={handleInstallClick}
+      className="install-pwa-button flex items-center gap-2"
+      variant="outline"
+      size="sm"
+    >
+      <Download className="h-4 w-4" />
+      Instalar App
+    </Button>
   )
 }

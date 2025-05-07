@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect, createContext, useContext } from "react"
-import { MessageSquare, Send, PanelLeft, PanelRight } from "lucide-react"
+import { MessageSquare, Send, PanelLeft, PanelRight, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -11,7 +11,6 @@ import { useToast } from "@/components/ui/use-toast"
 import { useFinance, type Transaction, type TransactionType, type TransactionStatus } from "./finance-provider"
 import { formatCurrency } from "@/utils/format-currency"
 import { LoadingOverlay } from "./loading-overlay"
-import { useMobile } from "@/hooks/use-mobile"
 
 // Criar um contexto específico para o chat sidebar
 interface ChatSidebarContext {
@@ -32,14 +31,23 @@ function useChatSidebar() {
 // Provider para o contexto do chat sidebar
 export function ChatSidebarProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<"expanded" | "collapsed">("collapsed")
-  const isMobile = useMobile()
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Colapsar automaticamente em dispositivos móveis
   useEffect(() => {
-    if (isMobile) {
-      setState("collapsed")
+    // Detectar se é dispositivo móvel
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
     }
-  }, [isMobile])
+
+    // Verificar inicialmente
+    checkMobile()
+
+    // Adicionar listener para redimensionamento
+    window.addEventListener("resize", checkMobile)
+
+    // Limpar listener
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   const toggleSidebar = () => {
     setState((prev) => (prev === "expanded" ? "collapsed" : "expanded"))
@@ -58,8 +66,6 @@ interface Message {
 // Chave para armazenar mensagens no localStorage
 const STORAGE_KEY = "finance-chat-messages"
 
-// Adicionar classe para aumentar o z-index do chat sidebar
-
 export function FinanceChat() {
   // Estado para controlar se estamos no cliente
   const [mounted, setMounted] = useState(false)
@@ -67,7 +73,7 @@ export function FinanceChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [chatLoading, setChatLoading] = useState(true)
   const [processingMessage, setProcessingMessage] = useState(false)
-  const isMobile = useMobile()
+  const [isMobile, setIsMobile] = useState(false)
 
   // Usar o contexto do chat sidebar
   const { state: sidebarState, toggleSidebar } = useChatSidebar()
@@ -81,9 +87,21 @@ export function FinanceChat() {
   // Efeito para marcar quando o componente está montado no cliente
   useEffect(() => {
     setMounted(true)
-  }, [])
 
-  // Resto do código...
+    // Detectar se é dispositivo móvel
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    // Verificar inicialmente
+    checkMobile()
+
+    // Adicionar listener para redimensionamento
+    window.addEventListener("resize", checkMobile)
+
+    // Limpar listener
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   // Carregar mensagens do localStorage
   useEffect(() => {
@@ -341,9 +359,105 @@ export function FinanceChat() {
     return null
   }
 
+  // Renderizar o chat para dispositivos móveis
+  if (isMobile) {
+    return (
+      <>
+        {/* Botão flutuante para abrir o chat */}
+        <Button
+          variant="default"
+          size="icon"
+          className={`fixed bottom-4 right-4 z-40 rounded-full shadow-lg h-12 w-12 ${!isCollapsed ? "hidden" : ""}`}
+          onClick={toggleSidebar}
+          aria-label="Abrir chat"
+        >
+          <MessageSquare className="h-6 w-6" />
+        </Button>
+
+        {/* Chat em tela cheia para mobile */}
+        <div
+          className={`fixed inset-0 bg-background z-50 flex flex-col transition-transform duration-300 transform ${
+            isCollapsed ? "translate-y-full" : "translate-y-0"
+          }`}
+        >
+          {/* Header */}
+          <div className="h-16 border-b flex items-center px-4">
+            <div className="flex justify-between w-full items-center">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-6 w-6" />
+                <span className="text-xl font-bold">FinanceChat</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="rounded-full"
+                aria-label="Fechar chat"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-hidden">
+            {chatLoading ? (
+              <LoadingOverlay show={chatLoading} message="Carregando mensagens..." fullScreen={false} />
+            ) : (
+              <ScrollArea className="h-full px-4 mobile-scroll">
+                <div className="py-4 space-y-3">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[90%] rounded-lg px-3 py-2 text-sm ${
+                          message.sender === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                        }`}
+                      >
+                        {renderMessage(message)}
+                        <div className="text-xs opacity-70 mt-1">
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="border-t p-3">
+            <form onSubmit={handleSendMessage} className="flex w-full gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Digite sua transação..."
+                className="flex-1"
+                disabled={processingMessage}
+              />
+              <Button type="submit" disabled={processingMessage} size="icon" className="rounded-full">
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  // Renderizar o chat para desktop
   return (
     <div
-      className={`h-full flex flex-col border-l border-border transition-all duration-300 ${isCollapsed ? "w-[3.5rem]" : "w-[20rem]"} bg-[hsl(var(--sidebar-background))] relative sidebar-container safe-area-padding`}
+      className={`h-full flex flex-col border-l border-border transition-all duration-300 ${
+        isCollapsed ? "w-[3.5rem]" : "w-[20rem]"
+      } bg-[hsl(var(--sidebar-background))] relative sidebar-container`}
     >
       {/* Loading overlay específico para o chat */}
       {chatLoading && <LoadingOverlay show={chatLoading} message="Carregando mensagens..." fullScreen={false} />}
@@ -411,7 +525,7 @@ export function FinanceChat() {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-10 w-10 rounded-full mobile-touch-target"
+              className="h-10 w-10 rounded-full"
               title="Expandir chat"
             >
               <PanelRight className="h-5 w-5" />
@@ -422,22 +536,28 @@ export function FinanceChat() {
 
       <style jsx global>{`
         @keyframes blink {
-          0% { opacity: 0.2; }
-          20% { opacity: 1; }
-          100% { opacity: 0.2; }
+          0% {
+            opacity: 0.2;
+          }
+          20% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.2;
+          }
         }
-        
+
         .typing-dot {
           animation: blink 1.4s infinite;
           animation-fill-mode: both;
           font-weight: bold;
           font-size: 1.2em;
         }
-        
+
         .typing-dot-2 {
           animation-delay: 0.2s;
         }
-        
+
         .typing-dot-3 {
           animation-delay: 0.4s;
         }
