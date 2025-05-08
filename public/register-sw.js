@@ -113,7 +113,10 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray
 }
 
-// Verificar se o app está sendo instalado
+// Variável global para armazenar o evento beforeinstallprompt
+window.deferredPrompt = null
+
+// Capturar o evento beforeinstallprompt
 window.addEventListener("beforeinstallprompt", (e) => {
   // Prevenir o comportamento padrão
   e.preventDefault()
@@ -121,35 +124,26 @@ window.addEventListener("beforeinstallprompt", (e) => {
   // Armazenar o evento para uso posterior
   window.deferredPrompt = e
 
-  // Atualizar a UI para mostrar o botão de instalação
-  const installButtons = document.querySelectorAll(".install-pwa-button")
-  installButtons.forEach((button) => {
-    button.style.display = "block"
-    button.addEventListener("click", installApp)
-  })
+  console.log("App pode ser instalado - evento capturado")
+
+  // Mostrar o botão de instalação
+  const installButton = document.getElementById("pwa-install-button")
+  if (installButton) {
+    installButton.style.display = "block"
+  }
 })
 
-// Função para instalar o app
-async function installApp() {
-  if (!window.deferredPrompt) return
-
-  // Mostrar o prompt de instalação
-  const promptEvent = window.deferredPrompt
-  promptEvent.prompt()
-
-  // Aguardar a escolha do usuário
-  const result = await promptEvent.userChoice
-  console.log(`Usuário ${result.outcome === "accepted" ? "aceitou" : "recusou"} a instalação`)
-
-  // Limpar a referência
+// Verificar se já está instalado
+window.addEventListener("appinstalled", (e) => {
+  console.log("Aplicativo instalado com sucesso")
   window.deferredPrompt = null
 
   // Esconder o botão de instalação
-  const installButtons = document.querySelectorAll(".install-pwa-button")
-  installButtons.forEach((button) => {
-    button.style.display = "none"
-  })
-}
+  const installButton = document.getElementById("pwa-install-button")
+  if (installButton) {
+    installButton.style.display = "none"
+  }
+})
 
 // Detectar quando o app é instalado
 window.addEventListener("appinstalled", (e) => {
