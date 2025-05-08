@@ -6,8 +6,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { AuthCheck } from "@/components/auth/auth-check"
 import { ConnectionStatus } from "@/components/connection-status"
-import { PWAInstallButton } from "@/components/pwa-install-button"
-import { PWADebug } from "@/components/pwa-debug"
 import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -29,23 +27,33 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/icons/icon-192x192.png" sizes="192x192" />
-        <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
         <meta name="theme-color" content="#0f172a" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
           <Providers>
             <AuthCheck redirectTo="/login">{children}</AuthCheck>
             <ConnectionStatus />
-            <PWAInstallButton />
-            <PWADebug />
             <Toaster />
           </Providers>
         </ErrorBoundary>
-        <Script id="register-sw" src="/register-sw.js" strategy="afterInteractive" />
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                  .then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                  })
+                  .catch(function(error) {
+                    console.log('ServiceWorker registration failed: ', error);
+                  });
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   )
