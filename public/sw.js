@@ -1,5 +1,5 @@
 // Nome do cache
-const CACHE_NAME = "finance-chat-v2"
+const CACHE_NAME = "finance-chat-v3"
 
 // Lista de recursos para cache
 const STATIC_RESOURCES = [
@@ -11,6 +11,10 @@ const STATIC_RESOURCES = [
   "/manifest.json",
   "/favicon.ico",
   "/offline.html",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png",
+  "/icons/icon-192x192-maskable.png",
+  "/icons/icon-512x512-maskable.png",
 ]
 
 // Instalação do Service Worker
@@ -92,35 +96,30 @@ self.addEventListener("fetch", (event) => {
     return
   }
 
-  // Estratégia Cache First para recursos estáticos
+  // Estratégia Stale-While-Revalidate para recursos estáticos
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse
-      }
-
-      return fetch(event.request)
-        .then((response) => {
+      // Retornar do cache imediatamente, enquanto busca atualização
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
           // Não armazenar em cache redirecionamentos ou respostas de erro
-          if (response.redirected || !response.ok) {
-            return response
+          if (networkResponse.ok && !networkResponse.redirected) {
+            const responseToCache = networkResponse.clone()
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache)
+            })
           }
-
-          // Clonar a resposta para armazenar em cache
-          const responseToCache = response.clone()
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache)
-          })
-
-          return response
+          return networkResponse
         })
         .catch(() => {
-          // Para recursos não navegáveis, retorne um erro
+          // Se a rede falhar, já temos a resposta do cache ou retornamos erro
           return new Response("Recurso não disponível offline", {
             status: 503,
             headers: { "Content-Type": "text/plain" },
           })
         })
+
+      return cachedResponse || fetchPromise
     }),
   )
 })
@@ -141,7 +140,8 @@ self.addEventListener("push", (event) => {
 
     const options = {
       body: data.body || "Nova notificação",
-      icon: "/favicon.ico",
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/icon-192x192.png",
       data: {
         url: data.url || "/dashboard",
       },

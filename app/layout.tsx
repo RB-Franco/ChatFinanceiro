@@ -6,8 +6,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { AuthCheck } from "@/components/auth/auth-check"
 import { ConnectionStatus } from "@/components/connection-status"
+import { PWAInstallModal } from "@/components/pwa-install-modal"
 import Script from "next/script"
-import { PWAInstallButton } from "@/components/pwa-install-button"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -18,7 +18,7 @@ export const metadata = {
   themeColor: "#0f172a",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Dashboard Financeiro",
   },
   viewport: {
@@ -29,9 +29,9 @@ export const metadata = {
     viewportFit: "cover",
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "/icons/icon-192x192.png",
+    shortcut: "/icons/icon-192x192.png",
+    apple: "/icons/apple-icon-180.png",
   },
   formatDetection: {
     telephone: false,
@@ -51,20 +51,68 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icons/icon-192x192.png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="FinanceChat" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#0f172a" />
         <meta name="application-name" content="FinanceChat" />
+
+        {/* Splash screens para iOS */}
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-2048-2732.png"
+          media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1668-2388.png"
+          media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1536-2048.png"
+          media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1125-2436.png"
+          media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1242-2688.png"
+          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-828-1792.png"
+          media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-1242-2208.png"
+          media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-750-1334.png"
+          media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/icons/apple-splash-640-1136.png"
+          media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+        />
       </head>
-      <body className={`${inter.className} mobile-centered`}>
+      <body className={inter.className}>
         <ErrorBoundary>
           <Providers>
             <AuthCheck redirectTo="/login">{children}</AuthCheck>
             <ConnectionStatus />
-            <PWAInstallButton />
+            <PWAInstallModal />
             <Toaster />
           </Providers>
         </ErrorBoundary>
@@ -72,16 +120,20 @@ export default function RootLayout({
           {`
             // Verificar se o Service Worker é suportado
             if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                  .then(function(registration) {
-                    console.log('Service Worker registrado com sucesso:', registration.scope);
-                  })
-                  .catch(function(error) {
-                    console.log('Falha ao registrar o Service Worker:', error);
+              window.addEventListener('load', async function() {
+                try {
+                  const registration = await navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
                   });
+                  console.log('Service Worker registrado com sucesso:', registration.scope);
+                } catch (error) {
+                  console.error('Falha ao registrar o Service Worker:', error);
+                }
               });
             }
+            
+            // Variável global para armazenar o evento beforeinstallprompt
+            window.deferredPrompt = null;
             
             // Verificar se o app está sendo executado como PWA
             if (window.matchMedia('(display-mode: standalone)').matches) {
@@ -109,16 +161,13 @@ export default function RootLayout({
               window.deferredPrompt = e;
               
               console.log('App pode ser instalado - evento capturado no layout');
-              
-              // Disparar um evento personalizado para notificar componentes
-              const event = new CustomEvent('pwaInstallable', { detail: e });
-              window.dispatchEvent(event);
             });
             
             // Verificar se já está instalado
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-              console.log('Aplicativo já está instalado');
-            }
+            window.addEventListener('appinstalled', (e) => {
+              console.log('Aplicativo instalado com sucesso');
+              window.deferredPrompt = null;
+            });
           `}
         </Script>
       </body>
