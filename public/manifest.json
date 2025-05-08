@@ -7,6 +7,7 @@
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
   "orientation": "portrait",
+  "id": "/dashboard",
   "categories": ["finance", "productivity", "utilities"],
   "dir": "ltr",
   "lang": "pt-BR",
@@ -14,8 +15,38 @@
   "scope": "/",
   "icons": [
     {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
       "type": "image/png"
     },
     {
@@ -24,33 +55,68 @@
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-192x192-maskable.png",
+      "src": "/icons/maskable-icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-512x512-maskable.png",
+      "src": "/icons/maskable-icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ],
   "shortcuts": [
     {
       "name": "Dashboard",
       "url": "/dashboard",
-      "description": "Visualizar dashboard financeiro"
+      "description": "Visualizar dashboard financeiro",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Relatórios",
       "url": "/reports",
-      "description": "Ver relatórios financeiros"
+      "description": "Ver relatórios financeiros",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Calendário",
       "url": "/calendar",
-      "description": "Visualizar calendário financeiro"
+      "description": "Visualizar calendário financeiro",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

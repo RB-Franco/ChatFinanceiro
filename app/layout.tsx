@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import { AuthCheck } from "@/components/auth/auth-check"
 import { ConnectionStatus } from "@/components/connection-status"
 import { PWAInstallModal } from "@/components/pwa-install-modal"
+import { PWADiagnostics } from "@/components/pwa-diagnostics"
 import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -51,6 +52,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/icons/icon-192x192.png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -113,6 +115,7 @@ export default function RootLayout({
             <AuthCheck redirectTo="/login">{children}</AuthCheck>
             <ConnectionStatus />
             <PWAInstallModal />
+            <PWADiagnostics />
             <Toaster />
           </Providers>
         </ErrorBoundary>
@@ -122,34 +125,64 @@ export default function RootLayout({
             if ('serviceWorker' in navigator) {
               window.addEventListener('load', async function() {
                 try {
+                  console.log('[PWA] Registrando Service Worker...');
                   const registration = await navigator.serviceWorker.register('/sw.js', {
                     scope: '/'
                   });
-                  console.log('Service Worker registrado com sucesso:', registration.scope);
+                  console.log('[PWA] Service Worker registrado com sucesso:', registration.scope);
+                  
+                  // Verificar se há atualizações
+                  registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('[PWA] Nova versão do Service Worker encontrada:', newWorker);
+                    
+                    newWorker.addEventListener('statechange', () => {
+                      console.log('[PWA] Estado do Service Worker alterado:', newWorker.state);
+                    });
+                  });
+                  
+                  // Verificar se há um service worker esperando
+                  if (registration.waiting) {
+                    console.log('[PWA] Service Worker esperando para ativar');
+                  }
+                  
                 } catch (error) {
-                  console.error('Falha ao registrar o Service Worker:', error);
+                  console.error('[PWA] Falha ao registrar o Service Worker:', error);
                 }
               });
+              
+              // Verificar se há atualizações quando a página fica visível
+              document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible') {
+                  const registrations = await navigator.serviceWorker.getRegistrations();
+                  for (const registration of registrations) {
+                    registration.update();
+                  }
+                }
+              });
+            } else {
+              console.warn('[PWA] Service Workers não são suportados neste navegador');
             }
             
             // Variável global para armazenar o evento beforeinstallprompt
             window.deferredPrompt = null;
             
             // Verificar se o app está sendo executado como PWA
-            if (window.matchMedia('(display-mode: standalone)').matches) {
+            if (window.matchMedia('(display-mode: standalone)').matches || 
+                (window.navigator.standalone === true)) {
               document.documentElement.classList.add('pwa-mode');
-              console.log('Aplicativo está sendo executado como PWA');
+              console.log('[PWA] Aplicativo está sendo executado como PWA');
             }
             
             // Lidar com eventos de online/offline
             window.addEventListener('online', () => {
               document.documentElement.classList.remove('offline-mode');
-              console.log('Aplicativo está online');
+              console.log('[PWA] Aplicativo está online');
             });
             
             window.addEventListener('offline', () => {
               document.documentElement.classList.add('offline-mode');
-              console.log('Aplicativo está offline');
+              console.log('[PWA] Aplicativo está offline');
             });
             
             // Verificar se o app pode ser instalado
@@ -160,16 +193,25 @@ export default function RootLayout({
               // Armazenar o evento para uso posterior
               window.deferredPrompt = e;
               
-              console.log('App pode ser instalado - evento capturado no layout');
+              console.log('[PWA] App pode ser instalado - evento beforeinstallprompt capturado');
+              
+              // Disparar um evento personalizado para notificar componentes
+              const event = new CustomEvent('pwaInstallable', { detail: e });
+              window.dispatchEvent(event);
             });
             
             // Verificar se já está instalado
             window.addEventListener('appinstalled', (e) => {
-              console.log('Aplicativo instalado com sucesso');
+              console.log('[PWA] Aplicativo instalado com sucesso');
               window.deferredPrompt = null;
+              
+              // Disparar um evento personalizado
+              const event = new CustomEvent('pwaInstalled');
+              window.dispatchEvent(event);
             });
           `}
         </Script>
+        <Script id="pwa-check" src="/pwa-check.js" strategy="lazyOnload" />
       </body>
     </html>
   )
