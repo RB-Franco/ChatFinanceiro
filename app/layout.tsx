@@ -6,6 +6,10 @@ import { Toaster } from "@/components/ui/toaster"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { AuthCheck } from "@/components/auth/auth-check"
 import { ConnectionStatus } from "@/components/connection-status"
+import { PWAInstallBanner } from "@/components/pwa-install-banner"
+import { IOSInstallGuide } from "@/components/ios-install-guide"
+import { AndroidInstallButton } from "@/components/android-install-button"
+import { PWADebugOverlay } from "@/components/pwa-debug-overlay"
 import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -28,14 +32,21 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="theme-color" content="#0f172a" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="FinanceChat" />
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
           <Providers>
             <AuthCheck redirectTo="/login">{children}</AuthCheck>
             <ConnectionStatus />
+            <PWAInstallBanner />
+            <IOSInstallGuide />
+            <AndroidInstallButton />
+            <PWADebugOverlay />
             <Toaster />
           </Providers>
         </ErrorBoundary>
@@ -45,7 +56,7 @@ export default function RootLayout({
               window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js')
                   .then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    console.log('ServiceWorker registration successful');
                   })
                   .catch(function(error) {
                     console.log('ServiceWorker registration failed: ', error);

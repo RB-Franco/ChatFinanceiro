@@ -1,8 +1,8 @@
 {
-  "name": "Dashboard Financeiro",
+  "name": "FinanceChat",
   "short_name": "FinanceChat",
   "description": "Dashboard financeiro com chat integrado",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
