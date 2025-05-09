@@ -1,87 +1,68 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Download } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
 
 export function PWAInstallButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
-  const [isInstalled, setIsInstalled] = useState(false)
+  const [showInstall, setShowInstall] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
 
   useEffect(() => {
+    // Detectar iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    setIsIOS(isIOSDevice)
+
     // Verificar se já está instalado
-    if (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true) {
-      setIsInstalled(true)
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setShowInstall(false)
       return
     }
 
-    // Detectar iOS
-    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-    setIsIOS(iOS)
+    // Mostrar botão após 3 segundos
+    const timer = setTimeout(() => {
+      setShowInstall(true)
+    }, 3000)
 
-    // Capturar evento de instalação
-    const handleBeforeInstallPrompt = (e: any) => {
-      console.log("[PWA] Evento beforeinstallprompt capturado!", e)
-      // Prevenir comportamento padrão
-      e.preventDefault()
-      // Armazenar o evento
-      setDeferredPrompt(e)
-      // Armazenar globalmente também
-      window.deferredPrompt = e
-    }
-
-    // Verificar se já existe um deferredPrompt
-    if (window.deferredPrompt) {
-      console.log("[PWA] deferredPrompt já existe na janela")
-      setDeferredPrompt(window.deferredPrompt)
-    }
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-    }
+    return () => clearTimeout(timer)
   }, [])
 
-  const handleInstall = async () => {
-    console.log("[PWA] Tentando instalar, deferredPrompt:", deferredPrompt)
-
-    if (deferredPrompt) {
-      try {
-        // Mostrar o prompt de instalação
-        deferredPrompt.prompt()
-
-        // Aguardar a escolha do usuário
-        const choiceResult = await deferredPrompt.userChoice
-        console.log("[PWA] Resultado da escolha:", choiceResult.outcome)
-
-        // Limpar o prompt armazenado
-        setDeferredPrompt(null)
-        window.deferredPrompt = null
-      } catch (error) {
-        console.error("[PWA] Erro ao acionar prompt de instalação:", error)
-        alert("Erro ao instalar: " + error)
-      }
-    } else if (isIOS) {
-      alert(
-        "Para instalar no iOS:\n1. Toque no botão de compartilhar (retângulo com seta)\n2. Role para baixo e toque em 'Adicionar à Tela de Início'",
-      )
-    } else {
-      alert(
-        "Para instalar:\n1. Toque no menu (três pontos) no canto superior direito\n2. Selecione 'Instalar aplicativo' ou 'Adicionar à tela inicial'",
-      )
-    }
-  }
-
-  if (isInstalled) return null
+  if (!showInstall) return null
 
   return (
-    <button
-      onClick={handleInstall}
-      className="fixed bottom-20 right-4 z-40 bg-green-600 text-white p-3 rounded-full shadow-lg"
-      aria-label="Instalar aplicativo"
-    >
-      <Download size={24} />
-    </button>
+    <div className="fixed bottom-4 left-0 right-0 z-50 mx-auto max-w-md p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <img src="/icons/icon-96x96.png" alt="FinanceChat" className="w-10 h-10" />
+          <div>
+            <h3 className="font-medium">Instalar FinanceChat</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {isIOS
+                ? 'Toque em "Compartilhar" e depois "Adicionar à Tela de Início"'
+                : 'Toque em "Instalar" para adicionar à tela inicial'}
+            </p>
+          </div>
+        </div>
+        {!isIOS && (
+          <Button
+            onClick={() => {
+              alert(
+                'Para instalar, toque nos três pontos (⋮) no canto superior direito e selecione "Instalar aplicativo" ou "Adicionar à tela inicial"',
+              )
+              setShowInstall(false)
+            }}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            Instalar
+          </Button>
+        )}
+        <button
+          onClick={() => setShowInstall(false)}
+          className="ml-2 text-gray-500 hover:text-gray-700"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
   )
 }

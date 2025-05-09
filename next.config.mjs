@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -8,34 +7,38 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: [
-      'v0.blob.com',
-      'fifmaz6upmosyxjd7.lite.usercontent.net',
-      'fifmaz6upmosyxjd7.li-ent.net'
-    ],
     unoptimized: true,
   },
-  experimental: {
-    optimizeServerReact: true,
-  },
-  // Adicionar configuração para servir arquivos estáticos com os tipos MIME corretos
-  headers: async () => {
+  async headers() {
     return [
       {
         source: '/sw.js',
         headers: [
           {
-            key: 'Content-Type',
-            value: 'application/javascript',
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
           },
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8',
+          },
+        ],
+      },
+      {
+        source: '/manifest.json',
+        headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=0, must-revalidate',
+          },
+          {
+            key: 'Content-Type',
+            value: 'application/manifest+json; charset=utf-8',
           },
         ],
       },
     ];
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
