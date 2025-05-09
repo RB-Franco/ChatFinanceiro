@@ -17,7 +17,25 @@ const nextConfig = {
   },
   experimental: {
     optimizeServerReact: true,
-  }
+  },
+  // Adicionar configuração para servir arquivos estáticos com os tipos MIME corretos
+  headers: async () => {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/javascript',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 export default nextConfig
