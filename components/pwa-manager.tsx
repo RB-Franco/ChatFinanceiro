@@ -12,65 +12,6 @@ export function PWAManager() {
   const [showDebug, setShowDebug] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Registrar o service worker
-  useEffect(() => {
-    async function registerSW() {
-      if ("serviceWorker" in navigator) {
-        try {
-          // Remover service workers antigos
-          const registrations = await navigator.serviceWorker.getRegistrations()
-          for (const registration of registrations) {
-            await registration.unregister()
-          }
-
-          // Registrar novo service worker
-          console.log("[PWA] Tentando registrar o Service Worker...")
-          const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" })
-          console.log("[PWA] Service Worker registrado com sucesso:", registration.scope)
-          setSwRegistration(registration)
-          setError(null)
-
-          // Verificar se o service worker está ativo
-          if (registration.active) {
-            setSwActive(true)
-            console.log("[PWA] Service Worker já está ativo")
-          }
-
-          // Monitorar mudanças de estado
-          registration.addEventListener("updatefound", () => {
-            const newWorker = registration.installing
-            if (newWorker) {
-              console.log("[PWA] Novo Service Worker encontrado, estado:", newWorker.state)
-              newWorker.addEventListener("statechange", () => {
-                console.log("[PWA] Service Worker state changed:", newWorker.state)
-                if (newWorker.state === "activated") {
-                  setSwActive(true)
-                  console.log("[PWA] Service Worker ativado com sucesso")
-                }
-              })
-            }
-          })
-        } catch (error) {
-          console.error("[PWA] Falha ao registrar o Service Worker:", error)
-          setError(String(error))
-        }
-      } else {
-        console.warn("[PWA] Service Workers não são suportados neste navegador")
-        setError("Service Workers não são suportados neste navegador")
-      }
-    }
-
-    registerSW()
-
-    // Limpar ao desmontar
-    return () => {
-      if (swRegistration) {
-        // Não desregistrar, apenas limpar o estado
-        setSwRegistration(null)
-      }
-    }
-  }, [])
-
   // Capturar o evento beforeinstallprompt
   useEffect(() => {
     function handleBeforeInstallPrompt(e: any) {
@@ -83,11 +24,47 @@ export function PWAManager() {
       setInstallable(true)
     }
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+    // Verificar se o service worker está registrado
+    async function checkServiceWorker() {
+      if ("serviceWorker" in navigator) {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations()
+          if (registrations.length > 0) {
+            setSwRegistration(registrations[0])
+            console.log("[PWA] Service Worker encontrado:", registrations[0].scope)
+
+            // Verificar se o service worker está ativo
+            if (registrations[0].active) {
+              setSwActive(true)
+              console.log("[PWA] Service Worker está ativo")
+            } else {
+              console.log(
+                "[PWA] Service Worker não está ativo, estado:",
+                registrations[0].installing ? "instalando" : registrations[0].waiting ? "esperando" : "desconhecido",
+              )
+            }
+          } else {
+            console.log("[PWA] Nenhum Service Worker registrado")
+          }
+        } catch (error) {
+          console.error("[PWA] Erro ao verificar Service Worker:", error)
+          setError(String(error))
+        }
+      }
+    }
 
     // Verificar se o app já está instalado
     if (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true) {
       console.log("[PWA] Aplicativo já está instalado como PWA")
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+
+    // Verificar se já existe um prompt armazenado globalmente
+    if (window.deferredPrompt) {
+      console.log("[PWA] Prompt de instalação encontrado na variável global")
+      setDeferredPrompt(window.deferredPrompt)
+      setInstallable(true)
     }
 
     // Capturar evento de instalação
@@ -102,24 +79,29 @@ export function PWAManager() {
       })
     })
 
-    // Capturar mensagens do service worker
-    if (navigator.serviceWorker) {
-      navigator.serviceWorker.addEventListener("message", (event) => {
-        console.log("[PWA] Mensagem recebida do Service Worker:", event.data)
-        if (event.data.type === "SW_ACTIVATED") {
-          setSwActive(true)
-        }
-      })
-    }
+    // Verificar o service worker
+    checkServiceWorker()
+
+    // Verificar periodicamente o status do service worker
+    const interval = setInterval(checkServiceWorker, 3000)
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+      clearInterval(interval)
     }
   }, [])
 
   // Função para instalar o app
   const installApp = async () => {
-    if (!deferredPrompt) {
+    // Verificar se há um prompt armazenado no estado
+    let promptToUse = deferredPrompt
+
+    // Se não houver, verificar se há um prompt armazenado globalmente
+    if (!promptToUse && window.deferredPrompt) {
+      promptToUse = window.deferredPrompt
+    }
+
+    if (!promptToUse) {
       console.log("[PWA] Nenhum prompt de instalação disponível")
       toast({
         title: "Instalação manual necessária",
@@ -131,10 +113,10 @@ export function PWAManager() {
 
     try {
       // Mostrar o prompt de instalação
-      deferredPrompt.prompt()
+      promptToUse.prompt()
 
       // Aguardar a escolha do usuário
-      const choiceResult = await deferredPrompt.userChoice
+      const choiceResult = await promptToUse.userChoice
 
       if (choiceResult.outcome === "accepted") {
         console.log("[PWA] Usuário aceitou a instalação")
@@ -144,9 +126,11 @@ export function PWAManager() {
 
       // Limpar o prompt
       setDeferredPrompt(null)
+      window.deferredPrompt = null
       setInstallable(false)
     } catch (error) {
       console.error("[PWA] Erro ao tentar instalar:", error)
+      setError(String(error))
       toast({
         title: "Erro na instalação",
         description: "Ocorreu um erro ao tentar instalar o aplicativo",
@@ -158,9 +142,12 @@ export function PWAManager() {
 
   // Função para forçar a atualização do service worker
   const updateServiceWorker = async () => {
-    if (swRegistration) {
+    if ("serviceWorker" in navigator) {
       try {
-        await swRegistration.update()
+        const registrations = await navigator.serviceWorker.getRegistrations()
+        for (const registration of registrations) {
+          await registration.update()
+        }
         toast({
           title: "Atualização verificada",
           description: "Verificando atualizações do service worker",
@@ -168,6 +155,7 @@ export function PWAManager() {
         })
       } catch (error) {
         console.error("[PWA] Erro ao atualizar o service worker:", error)
+        setError(String(error))
       }
     }
   }
@@ -185,6 +173,7 @@ export function PWAManager() {
         })
       } catch (error) {
         console.error("[PWA] Erro ao limpar o cache:", error)
+        setError(String(error))
       }
     }
   }
@@ -243,6 +232,9 @@ export function PWAManager() {
 
                   <div className="text-gray-500 dark:text-gray-400">Modo:</div>
                   <div>{window.matchMedia("(display-mode: standalone)").matches ? "Standalone" : "Browser"}</div>
+
+                  <div className="text-gray-500 dark:text-gray-400">Prompt:</div>
+                  <div>{deferredPrompt || window.deferredPrompt ? "Disponível" : "Não disponível"}</div>
                 </div>
               </div>
 
@@ -255,7 +247,7 @@ export function PWAManager() {
               <div className="space-y-2">
                 <h3 className="font-medium">Ações</h3>
                 <div className="grid grid-cols-1 gap-2">
-                  <Button onClick={installApp} disabled={!installable} className="w-full">
+                  <Button onClick={installApp} disabled={!installable && !window.deferredPrompt} className="w-full">
                     Forçar Instalação
                   </Button>
 
