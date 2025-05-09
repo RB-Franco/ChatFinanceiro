@@ -1,16 +1,12 @@
 // Nome do cache
 const CACHE_NAME = "finance-chat-v1"
 
-// Lista de recursos para cache
+// Lista de recursos essenciais para cache
 const STATIC_RESOURCES = [
   "/",
+  "/login",
   "/dashboard",
-  "/reports",
-  "/calendar",
-  "/profile",
   "/manifest.json",
-  "/favicon.ico",
-  "/offline.html",
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
 ]
@@ -19,14 +15,14 @@ const STATIC_RESOURCES = [
 self.addEventListener("install", (event) => {
   console.log("[SW] Instalando...")
 
+  // Força a ativação imediata
+  self.skipWaiting()
+
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) => {
-        console.log("[SW] Cache aberto")
-        return cache.addAll(STATIC_RESOURCES)
-      })
-      .then(() => self.skipWaiting()),
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log("[SW] Cache aberto")
+      return cache.addAll(STATIC_RESOURCES)
+    }),
   )
 })
 
@@ -34,53 +30,35 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   console.log("[SW] Ativando...")
 
+  // Força o controle imediato de todas as páginas
   event.waitUntil(
-    caches
-      .keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME) {
-              console.log("[SW] Limpando cache antigo:", cacheName)
-              return caches.delete(cacheName)
-            }
-          }),
-        )
-      })
-      .then(() => self.clients.claim()),
+    Promise.all([
+      self.clients.claim(),
+      // Limpar caches antigos
+      caches
+        .keys()
+        .then((cacheNames) => {
+          return Promise.all(
+            cacheNames.map((cacheName) => {
+              if (cacheName !== CACHE_NAME) {
+                console.log("[SW] Limpando cache antigo:", cacheName)
+                return caches.delete(cacheName)
+              }
+            }),
+          )
+        }),
+    ]),
   )
 })
 
-// Estratégia de cache simples
+// Evento fetch básico mas essencial
 self.addEventListener("fetch", (event) => {
-  // Ignorar requisições para API e outros recursos específicos
-  if (
-    event.request.url.includes("supabase.co") ||
-    event.request.method !== "GET" ||
-    event.request.url.includes("/api/") ||
-    event.request.url.includes("chrome-extension") ||
-    event.request.url.includes("blob:")
-  ) {
-    return
+  // Implementação simples para garantir que o service worker seja reconhecido
+  if (event.request.mode === "navigate" && !navigator.onLine) {
+    event.respondWith(
+      caches.match("/offline.html").then((response) => {
+        return response || fetch(event.request)
+      }),
+    )
   }
-
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse
-        }
-
-        // Para navegação, retorne a página offline
-        if (event.request.mode === "navigate") {
-          return caches.match("/offline.html")
-        }
-
-        return new Response("Recurso não disponível offline", {
-          status: 503,
-          headers: { "Content-Type": "text/plain" },
-        })
-      })
-    }),
-  )
 })

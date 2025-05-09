@@ -7,8 +7,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import { AuthCheck } from "@/components/auth/auth-check"
 import { ConnectionStatus } from "@/components/connection-status"
 import { PWAAdvancedDebug } from "@/components/pwa-advanced-debug"
-import { PWAMiniInfobar } from "@/components/pwa-mini-infobar"
-import { PWAInstallGuide } from "@/components/pwa-install-guide"
+import { ForceSWActivation } from "@/components/force-sw-activation"
 import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -43,26 +42,13 @@ export default function RootLayout({
           <Providers>
             <AuthCheck redirectTo="/login">{children}</AuthCheck>
             <ConnectionStatus />
-            <PWAMiniInfobar />
-            <PWAInstallGuide />
+            <ForceSWActivation />
             <PWAAdvancedDebug />
             <Toaster />
           </Providers>
         </ErrorBoundary>
         <Script id="register-sw" strategy="afterInteractive">
           {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                  .then(function(registration) {
-                    console.log('[PWA] Service Worker registrado com sucesso:', registration.scope);
-                  })
-                  .catch(function(error) {
-                    console.error('[PWA] Falha ao registrar o Service Worker:', error);
-                  });
-              });
-            }
-            
             // Verificar se o app está sendo executado como PWA
             if (window.matchMedia('(display-mode: standalone)').matches || 
                 (window.navigator.standalone === true)) {
